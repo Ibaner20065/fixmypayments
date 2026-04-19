@@ -9,20 +9,20 @@ function CustomTooltip({ active, payload }) {
     return (
       <div
         style={{
-          background: "white",
+          background: "#111111",
           padding: "8px 14px",
           borderRadius: "10px",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
-          border: "1px solid rgba(0,0,0,0.06)",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+          border: "1px solid rgba(255,255,255,0.06)",
           fontSize: "0.8125rem",
           fontFamily: "Inter, sans-serif",
         }}
       >
-        <span style={{ fontWeight: 500 }}>
+        <span style={{ fontWeight: 500, color: "#f5f5f5" }}>
           {CATEGORY_EMOJIS[data.name] || "📦"} {data.name}
         </span>
         <br />
-        <span style={{ color: "#737373" }}>
+        <span style={{ color: "#a3a3a3" }}>
           ₹{data.value.toLocaleString("en-IN")} ({data.percent}%)
         </span>
       </div>

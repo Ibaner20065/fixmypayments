@@ -1,161 +1,151 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-export default function LandingPage() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const heroRef = useRef(null);
+export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const router = useRouter();
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (!heroRef.current) return;
-      const rect = heroRef.current.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-      setMousePos({ x, y });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    await new Promise((r) => setTimeout(r, 600));
+    setIsLoading(false);
+    setIsTransitioning(true);
+    await new Promise((r) => setTimeout(r, 700));
+    router.push("/dashboard");
+  };
 
   return (
-    <div
-      ref={heroRef}
-      className="landing-root"
-      style={{ cursor: "default" }}
-    >
-      {/* ===== CINEMATIC GRADIENT BACKGROUND ===== */}
-      <div className="landing-gradient" />
-
-      {/* ===== NOISE OVERLAY ===== */}
-      <div className="landing-noise" />
-
-      {/* ===== MASSIVE BACKGROUND TEXT ===== */}
-      <motion.h1
-        className="landing-bigtext"
-        style={{
-          transform: `translate(calc(-50% + ${mousePos.x * -15}px), calc(-50% + ${mousePos.y * -10}px))`,
-        }}
-      >
-        CONTROL
-      </motion.h1>
-
-      {/* ===== STATUE ===== */}
-      <motion.img
-        src="/statue.png"
-        alt=""
-        className="landing-statue"
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.2, delay: 0.3, ease: "easeOut" }}
-        style={{
-          transform: `translate(${mousePos.x * 8}px, ${mousePos.y * 5}px)`,
-        }}
-      />
-
-      {/* ===== CONTENT ===== */}
-      <div className="landing-content">
-        {/* Nav */}
-        <motion.nav
-          className="landing-nav"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          <div className="landing-nav__logo">
-            <span className="landing-nav__icon">₹</span>
-            <span className="landing-nav__brand">FixMyPayments</span>
-          </div>
-        </motion.nav>
-
-        {/* Hero */}
-        <div className="landing-hero">
-          <motion.div
-            className="landing-hero__badge"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            AI-Powered Finance
-          </motion.div>
-
-          <motion.h2
-            className="landing-hero__title"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-          >
-            AI Financial
-            <br />
-            <span className="landing-hero__accent">Copilot</span>
-          </motion.h2>
-
-          <motion.p
-            className="landing-hero__sub"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.7 }}
-          >
-            Stop overspending before it happens.
-            <br />
-            Track every rupee with a single sentence.
-          </motion.p>
-
-          <motion.div
-            className="landing-hero__actions"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.9 }}
-          >
-            <Link href="/login" className="landing-cta">
-              Get Started
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                style={{ marginLeft: "8px" }}
-              >
-                <path
-                  d="M3 8h10M9 4l4 4-4 4"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
-            <Link href="/dashboard" className="landing-cta-ghost">
-              View Dashboard
-            </Link>
-          </motion.div>
-        </div>
-
-        {/* Feature strip */}
+    <>
+      {isTransitioning && (
         <motion.div
-          className="landing-features"
+          className="transition-overlay"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
-        >
-          <div className="landing-feature">
-            <span className="landing-feature__icon">⚡</span>
-            <span className="landing-feature__text">Instant Logging</span>
-          </div>
-          <div className="landing-feature__divider" />
-          <div className="landing-feature">
-            <span className="landing-feature__icon">🧠</span>
-            <span className="landing-feature__text">AI Categories</span>
-          </div>
-          <div className="landing-feature__divider" />
-          <div className="landing-feature">
-            <span className="landing-feature__icon">📊</span>
-            <span className="landing-feature__text">Live Insights</span>
-          </div>
-        </motion.div>
+          transition={{ duration: 0.5 }}
+        />
+      )}
+
+      <div className="login-page">
+        {/* Background */}
+        <div className="login-bg" />
+        <div className="login-noise" />
+
+        {/* Massive background text */}
+        <div className="login-bigtext">CONTROL</div>
+
+        {/* Statue */}
+        <motion.img
+          src="/statue.png"
+          alt=""
+          className="login-statue"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.2 }}
+        />
+
+        {/* Red glow accent */}
+        <div className="login-glow" />
+
+        {/* Content */}
+        <div className="login-content">
+          {/* Brand */}
+          <motion.div
+            className="login-brand"
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <div className="login-brand__icon">₹</div>
+            <span className="login-brand__name">FixMyPayments</span>
+          </motion.div>
+
+          {/* Card */}
+          <motion.div
+            className="login-card"
+            initial={{ opacity: 0, y: 20, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <h1 className="login-title">Welcome back</h1>
+            <p className="login-subtitle">
+              Sign in to take control of your finances
+            </p>
+
+            <form onSubmit={handleSubmit} className="login-form">
+              <div className="login-field">
+                <label className="login-label" htmlFor="email">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  className="login-input"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoFocus
+                />
+              </div>
+
+              <div className="login-field">
+                <label className="login-label" htmlFor="password">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  className="login-input"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="login-btn"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <span className="login-spinner" />
+                ) : (
+                  "Sign In"
+                )}
+              </button>
+            </form>
+
+            <div className="login-divider">
+              <span className="login-divider__line" />
+              <span className="login-divider__text">or</span>
+              <span className="login-divider__line" />
+            </div>
+
+            <button className="login-google" onClick={handleSubmit}>
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+              </svg>
+              Continue with Google
+            </button>
+
+            <p className="login-footer">
+              Don&apos;t have an account?{" "}
+              <button className="login-link" onClick={handleSubmit}>
+                Sign up
+              </button>
+            </p>
+          </motion.div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
