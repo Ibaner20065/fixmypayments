@@ -8,6 +8,7 @@ interface TransactionRowProps {
   onUpdate: (updatedTransaction: ClassifiedTransaction) => void;
   onDelete: (id: string) => void;
   onShowToast: (message: string) => void;
+  onSponsor?: (tx: ClassifiedTransaction) => void;
 }
 
 const CATEGORIES = ['Food', 'Transport', 'Shopping', 'Utilities', 'Medical', 'Entertainment', 'Health', 'Groceries'];
@@ -17,6 +18,7 @@ export default function TransactionRow({
   onUpdate,
   onDelete,
   onShowToast,
+  onSponsor,
 }: TransactionRowProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedCategory, setEditedCategory] = useState(transaction.category);
@@ -178,7 +180,7 @@ export default function TransactionRow({
         padding: '16px',
         marginBottom: 12,
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr 150px 80px 80px',
+        gridTemplateColumns: '1fr 1fr 150px 60px 60px 80px',
         gap: 12,
         alignItems: 'center',
       }}
@@ -256,6 +258,23 @@ export default function TransactionRow({
         }}
       >
         EDIT
+      </button>
+
+      <button
+        onClick={() => onSponsor?.(transaction)}
+        style={{
+          background: '#FFFFFF',
+          border: '2px solid #CCFF00',
+          color: '#CCFF00',
+          padding: '8px 12px',
+          fontFamily: "'Space Mono', monospace",
+          fontSize: '0.625rem',
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          cursor: 'pointer',
+        }}
+      >
+        ⛽ GAS
       </button>
 
       <button

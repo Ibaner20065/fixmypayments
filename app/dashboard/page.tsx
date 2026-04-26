@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import CardNav from '../components/CardNav';
 import { WalletConnectButton } from '../components/WalletConnectButton';
+import { WalletInfo } from '../components/WalletInfo';
+import { GaslessModal } from '../components/GaslessModal';
 import TransactionInput from '../components/TransactionInput';
 import CategoryChart from '../components/CategoryChart';
 import TransactionRow from '../components/TransactionRow';
@@ -47,6 +49,7 @@ export default function DashboardPage() {
   const [toast, setToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingFromDB, setIsLoadingFromDB] = useState(true);
+  const [gaslessModal, setGaslessModal] = useState<{ isOpen: boolean; tx?: ClassifiedTransaction }>({ isOpen: false });
 
   // Load transactions from database on mount
   useEffect(() => {
@@ -230,9 +233,12 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Wallet Connection */}
-        <div style={{ marginBottom: 40, display: 'flex', justifyContent: 'flex-end' }}>
-          <WalletConnectButton />
+        {/* Wallet Info & Connection */}
+        <div style={{ marginBottom: 40 }}>
+          <WalletInfo />
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <WalletConnectButton />
+          </div>
         </div>
 
         {/* Section: Transaction Input */}
@@ -345,6 +351,9 @@ export default function DashboardPage() {
                   showToast('✓ TRANSACTION DELETED');
                 }}
                 onShowToast={showToast}
+                onSponsor={(tx) => {
+                  setGaslessModal({ isOpen: true, tx });
+                }}
               />
             ))
           )}
@@ -371,6 +380,18 @@ export default function DashboardPage() {
         <span>·</span>
         <span>DISRUPTOR ENGINE</span>
       </footer>
+
+      {/* Gasless Modal */}
+      <GaslessModal
+        isOpen={gaslessModal.isOpen}
+        amount={gaslessModal.tx?.amount || 0}
+        merchant={gaslessModal.tx?.merchant || ''}
+        onSponsor={async () => {
+          showToast('✓ TRANSACTION SPONSORED');
+          setGaslessModal({ isOpen: false });
+        }}
+        onCancel={() => setGaslessModal({ isOpen: false })}
+      />
 
       {/* Responsive */}
       <style>{`
