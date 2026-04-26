@@ -5,7 +5,7 @@ import CardNav from '../components/CardNav';
 import { WalletConnectButton } from '../components/WalletConnectButton';
 import TransactionInput from '../components/TransactionInput';
 import CategoryChart from '../components/CategoryChart';
-import TransactionList from '../components/TransactionList';
+import TransactionRow from '../components/TransactionRow';
 import { parseTransaction, classifyWithLLM } from '../lib/classify';
 import type { ClassifiedTransaction } from '../lib/classify';
 import type { CardNavItem } from '../components/CardNav';
@@ -272,21 +272,82 @@ export default function DashboardPage() {
         </div>
 
         {/* Section: Recent Transactions */}
-        <div>
+        <div style={{ marginBottom: 40 }}>
           <div
             style={{
-              fontFamily: "'Space Mono', monospace",
-              fontSize: '0.6875rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#CCFF00',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
               marginBottom: 12,
             }}
           >
-            📋 RECENT ACTIVITY
+            <div
+              style={{
+                fontFamily: "'Space Mono', monospace",
+                fontSize: '0.6875rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: '#CCFF00',
+              }}
+            >
+              📋 RECENT ACTIVITY
+            </div>
+            {transactions.length > 0 && (
+              <button
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = '/api/export/csv';
+                  (link as HTMLAnchorElement).download = '';
+                  link.click();
+                }}
+                style={{
+                  background: '#CCFF00',
+                  border: '2px solid #000',
+                  padding: '8px 16px',
+                  fontFamily: "'Space Mono', monospace",
+                  fontSize: '0.625rem',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                }}
+              >
+                📥 EXPORT CSV
+              </button>
+            )}
           </div>
-          <TransactionList transactions={transactions} />
+          {transactions.length === 0 ? (
+            <div
+              style={{
+                background: '#FFFFFF',
+                border: '2px dashed #CCFF00',
+                padding: '32px',
+                textAlign: 'center',
+                color: '#475569',
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+              }}
+            >
+              No transactions yet. Add one above!
+            </div>
+          ) : (
+            transactions.map((transaction) => (
+              <TransactionRow
+                key={transaction.id}
+                transaction={transaction}
+                onUpdate={(updated) => {
+                  setTransactions((prev) =>
+                    prev.map((t) => (t.id === updated.id ? updated : t))
+                  );
+                  showToast('✓ TRANSACTION UPDATED');
+                }}
+                onDelete={(id) => {
+                  setTransactions((prev) => prev.filter((t) => t.id !== id));
+                  showToast('✓ TRANSACTION DELETED');
+                }}
+                onShowToast={showToast}
+              />
+            ))
+          )}
         </div>
       </div>
 
