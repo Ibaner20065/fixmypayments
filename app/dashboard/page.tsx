@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CardNav from '../components/CardNav';
 import TransactionInput from '../components/TransactionInput';
 import CategoryChart from '../components/CategoryChart';
@@ -45,6 +45,26 @@ export default function DashboardPage() {
   const [transactions, setTransactions] = useState<ClassifiedTransaction[]>([]);
   const [toast, setToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingFromDB, setIsLoadingFromDB] = useState(true);
+
+  // Load transactions from database on mount
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const res = await fetch('/api/transactions');
+        if (res.ok) {
+          const data = await res.json();
+          setTransactions(data.transactions || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch transactions:', error);
+      } finally {
+        setIsLoadingFromDB(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
 
   const showToast = (message: string) => {
     setToast({ visible: true, message });
@@ -53,23 +73,55 @@ export default function DashboardPage() {
 
   const handleAddTransaction = async (text: string) => {
     setIsLoading(true);
-    let parsed: ClassifiedTransaction;
 
     try {
-      parsed = await classifyWithLLM(text);
-    } catch {
-      parsed = parseTransaction(text);
+      // Send to API to classify and save
+      const res = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ raw_text: text }),
+      });
+
+      if (!res.ok) {
+        showToast('⚠ ERROR SAVING TRANSACTION');
+        setIsLoading(false);
+        return;
+      }
+
+      const newTransaction = await res.json();
+
+      // Add emoji based on category
+      const CATEGORY_EMOJIS: Record<string, string> = {
+        Food: '🍔',
+        Transport: '🚗',
+        Shopping: '🛍️',
+        Utilities: '⚡',
+        Medical: '🏥',
+        Entertainment: '🎬',
+        Health: '💪',
+        Groceries: '🛒',
+      };
+
+      const parsedTransaction = {
+        ...newTransaction,
+        emoji: CATEGORY_EMOJIS[newTransaction.category] || '📦',
+      };
+
+      if (newTransaction.amount === 0) {
+        showToast('⚠ COULD NOT FIND AN AMOUNT — TRY "SWIGGY 300"');
+      } else {
+        // Update local state with new transaction
+        setTransactions((prev) => [parsedTransaction, ...prev]);
+        showToast(
+          `${parsedTransaction.emoji} ₹${parsedTransaction.amount.toLocaleString('en-IN')} → ${parsedTransaction.category.toUpperCase()}`
+        );
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showToast('⚠ ERROR CLASSIFYING TRANSACTION');
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
-
-    if (parsed.amount === 0) {
-      showToast('⚠ COULD NOT FIND AN AMOUNT — TRY "SWIGGY 300"');
-      return;
-    }
-
-    setTransactions((prev) => [...prev, parsed]);
-    showToast(`${parsed.emoji} ₹${parsed.amount.toLocaleString('en-IN')} → ${parsed.category.toUpperCase()}`);
   };
 
   const total = transactions.reduce((sum, t) => sum + t.amount, 0);

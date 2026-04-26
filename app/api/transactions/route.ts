@@ -57,11 +57,11 @@ export async function POST(request: NextRequest) {
     const date = new Date().toISOString();
 
     const stmt = db.prepare(`
-      INSERT INTO transactions (id, raw_text, amount, category, merchant, date)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO transactions (id, raw_text, amount, category, merchant, date, confidence)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
-    stmt.run(id, raw_text, classified.amount, classified.category, classified.merchant, date);
+    stmt.run(id, raw_text, classified.amount, classified.category, classified.merchant, date, classified.confidence || 1.0);
 
     const record = {
       id,
@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
       category: classified.category,
       merchant: classified.merchant,
       date,
+      confidence: classified.confidence || 1.0,
     };
 
     return Response.json(record, { status: 201 });
