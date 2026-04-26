@@ -1,6 +1,7 @@
 import { parseTransaction } from '../../lib/classify';
 import type { NextRequest } from 'next/server';
 import db from '../../lib/db';
+import { randomUUID } from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    const id = crypto.randomUUID();
+    const id = randomUUID();
     const date = new Date().toISOString();
 
     const stmt = db.prepare(`
@@ -75,6 +76,7 @@ export async function POST(request: NextRequest) {
 
     return Response.json(record, { status: 201 });
   } catch (error) {
+    console.error('Transaction API error:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
