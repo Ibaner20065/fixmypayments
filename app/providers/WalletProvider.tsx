@@ -3,10 +3,10 @@
 import React, { ReactNode } from 'react';
 import {
   RainbowKitProvider,
-  getDefaultConfig,
+  getDefaultWallets,
   darkTheme,
 } from '@rainbow-me/rainbowkit';
-import { WagmiProvider } from 'wagmi';
+import { WagmiProvider, http } from 'wagmi';
 import {
   mainnet,
   polygon,
@@ -15,12 +15,24 @@ import {
   zksyncSepoliaTestnet,
 } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { createConfig } from 'wagmi';
 import '@rainbow-me/rainbowkit/styles.css';
 
-const config = getDefaultConfig({
+const { connectors } = getDefaultWallets({
   appName: 'FixMyPayments',
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'demo-project-id',
+  projectId: 'demo-project-id',
+});
+
+const config = createConfig({
   chains: [mainnet, polygon, optimism, arbitrum, zksyncSepoliaTestnet],
+  connectors,
+  transports: {
+    [mainnet.id]: http(),
+    [polygon.id]: http(),
+    [optimism.id]: http(),
+    [arbitrum.id]: http(),
+    [zksyncSepoliaTestnet.id]: http('https://sepolia.era.zksync.dev'),
+  },
   ssr: true,
 });
 
