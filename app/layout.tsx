@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import { WalletProvider } from './providers/WalletProvider';
 
 export const metadata: Metadata = {
   title: 'FixMyPayments — AI Finance + DeFi',
@@ -14,7 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <WalletProvider>{children}</WalletProvider>
+      </body>
     </html>
   );
 }

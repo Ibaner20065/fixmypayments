@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import CardNav from '../components/CardNav';
+import { WalletConnectButton } from '../components/WalletConnectButton';
 import TransactionInput from '../components/TransactionInput';
 import CategoryChart from '../components/CategoryChart';
 import TransactionList from '../components/TransactionList';
@@ -227,6 +228,11 @@ export default function DashboardPage() {
               />
             </div>
           ))}
+        </div>
+
+        {/* Wallet Connection */}
+        <div style={{ marginBottom: 40, display: 'flex', justifyContent: 'flex-end' }}>
+          <WalletConnectButton />
         </div>
 
         {/* Section: Transaction Input */}
