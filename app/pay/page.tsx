@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Send, ArrowRight, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 
@@ -9,6 +9,15 @@ interface PaymentStep {
   title: string;
   completed: boolean;
   current: boolean;
+}
+
+interface BudgetAlert {
+  type: 'category_exceeded' | 'total_exceeded' | 'spike_detected';
+  category?: string;
+  currentAmount: number;
+  budgetLimit: number;
+  percentUsed: number;
+  message: string;
 }
 
 export default function PayPage() {
@@ -20,6 +29,53 @@ export default function PayPage() {
   const [note, setNote] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [transactionId, setTransactionId] = useState('');
+  const [budgetAlerts, setBudgetAlerts] = useState<BudgetAlert[]>([]);
+  const [showAlertWarning, setShowAlertWarning] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [budgets, setBudgets] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    // Fetch user's budgets on mount
+    const fetchBudgets = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+
+        const res = await fetch('/api/budget', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setBudgets(data.budget);
+        }
+      } catch (error) {
+        console.error('Failed to fetch budgets:', error);
+      }
+    };
+
+    // Fetch user email from profile
+    const fetchUserEmail = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+
+        const res = await fetch('/api/profile', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setUserEmail(data.email);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user email:', error);
+      }
+    };
+
+    fetchBudgets();
+    fetchUserEmail();
+  }, []);
 
   const paymentSteps: PaymentStep[] = [
     { id: 1, title: 'Recipient', completed: step !== 'recipient' && recipient !== '', current: step === 'recipient' },
@@ -40,9 +96,70 @@ export default function PayPage() {
     }
   };
 
-  const handlePayment = async () => {
+  // Check budget alerts before payment
+  const handleReviewPayment = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      // Fetch user's existing transactions
+      const txRes = await fetch('/api/transactions', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+
+      const txData = await txRes.json();
+      const existingTransactions = txData.transactions || [];
+
+      // Map category name to match budget categories
+      const categoryMap: Record<string, string> = {
+        general: 'Entertainment',
+        friend: 'Entertainment',
+        family: 'Entertainment',
+        work: 'Shopping',
+        rent: 'Utilities',
+        utilities: 'Utilities',
+        food: 'Food',
+        transport: 'Transport',
+      };
+
+      const mappedCategory = categoryMap[category] || 'Entertainment';
+      
+      // Call budget check (simulate client-side for now)
+      const checkResponse = await fetch('/api/check-spending', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          newAmount: parseFloat(amount),
+          newCategory: mappedCategory,
+          existingTransactions,
+          budgets,
+        }),
+      });
+
+      if (checkResponse.ok) {
+        const { alerts } = await checkResponse.json();
+        if (alerts && alerts.length > 0) {
+          setBudgetAlerts(alerts);
+          setShowAlertWarning(true);
+          return; // Don't proceed to payment yet
+        }
+      }
+
+      // No alerts, proceed to payment
+      setBudgetAlerts([]);
+      setShowAlertWarning(false);
+      await handlePayment();
+    } catch (error) {
+      console.error('Budget check error:', error);
+      // Continue anyway if check fails
+      await handlePayment();
+    }
+  };
+
+  const handlePayment = async (forcePayment = false) => {
     setIsProcessing(true);
     setStep('processing');
+    setShowAlertWarning(false);
 
     try {
       // Simulate payment processing
@@ -57,7 +174,7 @@ export default function PayPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'payment-confirmation',
-          to: recipient, // In production, use actual email from user profile
+          to: userEmail || recipient,
           data: {
             recipientName: recipient,
             amount: parseFloat(amount).toLocaleString('en-IN'),
@@ -69,8 +186,24 @@ export default function PayPage() {
 
       if (emailResponse.ok) {
         console.log('✅ Payment confirmation email sent');
-      } else {
-        console.warn('⚠️ Failed to send email notification');
+      }
+
+      // Send budget alert email if applicable
+      if (budgetAlerts.length > 0 && userEmail) {
+        const alertEmailRes = await fetch('/api/send-alert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userEmail,
+            userName: userEmail.split('@')[0],
+            alerts: budgetAlerts,
+            emailType: forcePayment ? 'forced' : 'warning',
+          }),
+        });
+
+        if (alertEmailRes.ok) {
+          console.log('✅ Budget alert email sent');
+        }
       }
 
       setStep('success');
@@ -420,6 +553,40 @@ export default function PayPage() {
               )}
             </div>
 
+            {/* Budget Alert Warning */}
+            {showAlertWarning && budgetAlerts.length > 0 && (
+              <div
+                style={{
+                  background: '#fee',
+                  border: '2px solid #f44336',
+                  borderRadius: 12,
+                  padding: 20,
+                  marginBottom: 24,
+                }}
+              >
+                <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                  <AlertCircle size={24} style={{ color: '#f44336', flexShrink: 0 }} />
+                  <h3 style={{ margin: '0 0 12px 0', color: '#f44336', fontSize: '1rem', fontWeight: 700 }}>
+                    ⚠️ Budget Alert
+                  </h3>
+                </div>
+                {budgetAlerts.map((alert, idx) => (
+                  <div key={idx} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: idx < budgetAlerts.length - 1 ? '1px solid #f4867c' : 'none' }}>
+                    <p style={{ margin: '0 0 8px 0', fontSize: '0.875rem', color: '#f44336', fontWeight: 600 }}>
+                      {alert.message}
+                    </p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#c62828' }}>
+                      <span>₹{alert.currentAmount.toLocaleString('en-IN')} / ₹{alert.budgetLimit.toLocaleString('en-IN')}</span>
+                      <span style={{ fontWeight: 700 }}>{alert.percentUsed}% used</span>
+                    </div>
+                  </div>
+                ))}
+                <p style={{ margin: '12px 0 0 0', fontSize: '0.75rem', color: '#c62828', fontStyle: 'italic' }}>
+                  You can still proceed, but this transaction will be marked and an alert email will be sent.
+                </p>
+              </div>
+            )}
+
             <div
               style={{
                 background: '#fff9e6',
@@ -454,10 +621,10 @@ export default function PayPage() {
                 Back
               </button>
               <button
-                onClick={handlePayment}
+                onClick={() => showAlertWarning ? handlePayment(true) : handleReviewPayment()}
                 style={{
                   padding: '12px 16px',
-                  background: '#000',
+                  background: showAlertWarning ? '#f44336' : '#000',
                   color: '#fff',
                   border: 'none',
                   borderRadius: 8,
@@ -470,7 +637,7 @@ export default function PayPage() {
                   gap: 8,
                 }}
               >
-                <Send size={18} /> Send Money
+                <Send size={18} /> {showAlertWarning ? 'Send Anyway' : 'Send Money'}
               </button>
             </div>
           </div>
