@@ -241,6 +241,69 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* ZAAP Bundler CTA */}
+        <div
+          style={{
+            border: '8px solid #000',
+            background: '#CCFF00',
+            padding: '40px',
+            marginBottom: 40,
+            boxShadow: '8px 8px 0 #000',
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "'Ranchers', cursive",
+              fontSize: '2.5rem',
+              textTransform: 'uppercase',
+              margin: '0 0 16px 0',
+              lineHeight: 0.85,
+            }}
+          >
+            ZAAP BUNDLER
+          </h2>
+          <p
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: '14px',
+              color: '#000',
+              marginBottom: '24px',
+              lineHeight: 1.6,
+            }}
+          >
+            Execute 3-step DeFi transactions in one gasless bundle. Withdraw from Aave/Mute, swap to target asset,
+            transfer or buy NFT — all in a single transaction.
+          </p>
+          <a
+            href="/zaap"
+            style={{
+              display: 'inline-block',
+              padding: '16px 32px',
+              border: '4px solid #000',
+              background: '#000',
+              color: '#CCFF00',
+              fontFamily: "'Space Mono', monospace",
+              fontSize: '14px',
+              fontWeight: 'bold',
+              textTransform: 'uppercase',
+              textDecoration: 'none',
+              cursor: 'pointer',
+              boxShadow: '4px 4px 0 #000',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseEnter={(e) => {
+              (e.target as HTMLAnchorElement).style.transform = 'translate(4px, 4px)';
+              (e.target as HTMLAnchorElement).style.boxShadow = '0 0 0 #000';
+            }}
+            onMouseLeave={(e) => {
+              (e.target as HTMLAnchorElement).style.transform = 'translate(0, 0)';
+              (e.target as HTMLAnchorElement).style.boxShadow = '4px 4px 0 #000';
+            }}
+          >
+            LAUNCH ZAAP BUILDER
+          </a>
+        </div>
+
         {/* Section: Transaction Input */}
         <div style={{ marginBottom: 40 }}>
           <div
