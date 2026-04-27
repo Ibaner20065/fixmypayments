@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import CardNav from '../components/CardNav';
 import TransactionInput from '../components/TransactionInput';
 import CategoryChart from '../components/CategoryChart';
@@ -45,13 +45,76 @@ export default function DashboardPage() {
   const [transactions, setTransactions] = useState<ClassifiedTransaction[]>([]);
   const [toast, setToast] = useState<{ visible: boolean; message: string }>({ visible: false, message: '' });
   const [isLoading, setIsLoading] = useState(false);
+  const [newsLoading, setNewsLoading] = useState(false);
+  const [cryptoSignal, setCryptoSignal] = useState<{
+    averageChange: number;
+    recommendation: string;
+  } | null>(null);
+  const [trendingCoins, setTrendingCoins] = useState<
+    { name: string; symbol: string; market_cap_rank: number }[]
+  >([]);
+  const [authError, setAuthError] = useState('');
 
   const showToast = (message: string) => {
     setToast({ visible: true, message });
     setTimeout(() => setToast({ visible: false, message: '' }), 2500);
   };
 
+  const accessToken =
+    typeof window !== 'undefined' ? localStorage.getItem('sb-access-token') : null;
+
+  useEffect(() => {
+    if (!accessToken) {
+      setAuthError('Your session expired. Please login again.');
+      return;
+    }
+
+    const loadTransactions = async () => {
+      const res = await fetch('/api/transactions', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAuthError(data.error || 'Could not load your dashboard data.');
+        return;
+      }
+
+      setTransactions(
+        (data.transactions || []).map((t: any) => ({
+          ...t,
+          amount: Number(t.amount) || 0,
+          confidence: 1,
+          emoji: '💳',
+        }))
+      );
+    };
+
+    void loadTransactions();
+  }, [accessToken]);
+
+  useEffect(() => {
+    const loadCryptoInsights = async () => {
+      setNewsLoading(true);
+      try {
+        const res = await fetch('/api/crypto-insights', { cache: 'no-store' });
+        const data = await res.json();
+        if (!res.ok) return;
+        setCryptoSignal(data.signal);
+        setTrendingCoins(data.trending || []);
+      } finally {
+        setNewsLoading(false);
+      }
+    };
+
+    void loadCryptoInsights();
+  }, []);
+
   const handleAddTransaction = async (text: string) => {
+    if (!accessToken) {
+      showToast('⚠ LOGIN REQUIRED');
+      return;
+    }
+
     setIsLoading(true);
     let parsed: ClassifiedTransaction;
 
@@ -68,11 +131,41 @@ export default function DashboardPage() {
       return;
     }
 
-    setTransactions((prev) => [...prev, parsed]);
+    const saveRes = await fetch('/api/transactions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ raw_text: text }),
+    });
+    const saved = await saveRes.json();
+
+    if (!saveRes.ok) {
+      showToast(`⚠ ${saved.error || 'SAVE FAILED'}`);
+      return;
+    }
+
+    setTransactions((prev) => [
+      ...prev,
+      {
+        ...parsed,
+        ...saved,
+        amount: Number(saved.amount) || parsed.amount,
+        emoji: parsed.emoji,
+      },
+    ]);
     showToast(`${parsed.emoji} ₹${parsed.amount.toLocaleString('en-IN')} → ${parsed.category.toUpperCase()}`);
+
+    if (Array.isArray(saved.alerts) && saved.alerts.length > 0) {
+      showToast(`🚨 BUDGET ALERT: ${saved.alerts[0].message}`);
+    }
   };
 
-  const total = transactions.reduce((sum, t) => sum + t.amount, 0);
+  const total = useMemo(
+    () => transactions.reduce((sum, t) => sum + (Number(t.amount) || 0), 0),
+    [transactions]
+  );
   const categoryCount = [...new Set(transactions.map((t) => t.category))].length;
 
   return (
@@ -118,6 +211,24 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px 80px' }}>
+
+        {authError && (
+          <div
+            style={{
+              marginBottom: 24,
+              border: '3px solid #ff0000',
+              background: '#fff1f2',
+              padding: '12px 16px',
+              fontFamily: "'Space Mono', monospace",
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: '#b91c1c',
+              textTransform: 'uppercase',
+            }}
+          >
+            {authError}
+          </div>
+        )}
 
         {/* Stats Row */}
         <div
@@ -175,6 +286,71 @@ export default function DashboardPage() {
               />
             </div>
           ))}
+        </div>
+
+        {/* Section: Crypto News + AI Analyzer */}
+        <div style={{ marginBottom: 40 }}>
+          <div
+            style={{
+              fontFamily: "'Space Mono', monospace",
+              fontSize: '0.6875rem',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              color: '#CCFF00',
+              marginBottom: 12,
+            }}
+          >
+            📰 CRYPTO NEWS + AI ANALYSER
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+            <div
+              style={{
+                background: '#FFFFFF',
+                border: '4px solid #000000',
+                boxShadow: '8px 8px 0px #000000',
+                padding: 20,
+              }}
+            >
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, marginBottom: 12 }}>
+                TRENDING COINS
+              </div>
+              {newsLoading ? (
+                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem' }}>LOADING...</div>
+              ) : (
+                trendingCoins.map((coin) => (
+                  <div key={`${coin.symbol}-${coin.name}`} style={{ marginBottom: 8, fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.875rem' }}>
+                    {coin.name} ({coin.symbol?.toUpperCase()}) · Rank #{coin.market_cap_rank}
+                  </div>
+                ))
+              )}
+            </div>
+            <div
+              style={{
+                background: '#FFFFFF',
+                border: '4px solid #000000',
+                boxShadow: '8px 8px 0px #000000',
+                padding: 20,
+              }}
+            >
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, marginBottom: 12 }}>
+                AI RECOMMENDATION
+              </div>
+              {newsLoading || !cryptoSignal ? (
+                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem' }}>ANALYSING...</div>
+              ) : (
+                <>
+                  <div style={{ fontFamily: "'Ranchers', cursive", fontSize: '1.4rem', marginBottom: 8 }}>
+                    24H MOMENTUM: {cryptoSignal.averageChange > 0 ? '+' : ''}
+                    {cryptoSignal.averageChange}%
+                  </div>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.875rem', lineHeight: 1.6 }}>
+                    {cryptoSignal.recommendation}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Section: Transaction Input */}
