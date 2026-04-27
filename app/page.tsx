@@ -4,6 +4,7 @@ import React from 'react';
 import CardNav from './components/CardNav';
 import type { CardNavItem } from './components/CardNav';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowRight, Check, X, Zap, TrendingUp, Shield, ChevronRight, Star } from 'lucide-react';
 
 const navItems: CardNavItem[] = [
@@ -66,6 +67,7 @@ const testimonials = [
 const marqueeNames = ['ZKSYNC', 'AAVE', 'UNISWAP', 'MUTE.IO', 'PUREFI', 'RECHARTS', 'CLAUDE AI', 'NEXT.JS'];
 
 export default function LandingPage() {
+  const router = useRouter();
   return (
     <div style={{ background: '#ffe17c', minHeight: '100vh' }}>
       {/* ═══ NAV ═══ */}
@@ -113,9 +115,16 @@ export default function LandingPage() {
               <Link href="/auth" className="y-btn-primary">
                 LAUNCH APP <ArrowRight size={16} />
               </Link>
-              <Link href="#features" className="y-btn-secondary">
-                SEE FEATURES
-              </Link>
+              <button 
+                onClick={() => {
+                  localStorage.setItem('fb-id-token', 'demo-token');
+                  router.push('/dashboard');
+                }}
+                className="y-btn-secondary"
+                style={{ background: '#000', color: '#fff', cursor: 'pointer' }}
+              >
+                DEMO LOGIN
+              </button>
             </div>
           </div>
 

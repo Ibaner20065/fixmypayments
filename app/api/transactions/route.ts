@@ -1,6 +1,7 @@
 import { parseTransaction } from '../../lib/classify';
 import { checkSpendingAlerts, sendAlertEmail } from '../../lib/alerts';
 import { verifyToken, db, getUserBudgets } from '../../lib/firebase-admin';
+import { MOCK_TRANSACTIONS } from '../../lib/mockData';
 import type { NextRequest } from 'next/server';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -155,12 +156,25 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// ─── GET /api/transactions ───────────────────────────────────────────────────
-
 export async function GET(request: NextRequest) {
   const uid = await getAuthenticatedUid(request);
   if (!uid) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Demo Mode: Serve rich mock data
+  if (uid === 'demo-uid') {
+    const byCategory: Record<string, number> = {};
+    let total = 0;
+    MOCK_TRANSACTIONS.forEach((t) => {
+      byCategory[t.category] = (byCategory[t.category] || 0) + t.amount;
+      total += t.amount;
+    });
+    return Response.json({ 
+      transactions: MOCK_TRANSACTIONS, 
+      total, 
+      by_category: byCategory 
+    });
   }
 
   // If Firebase is missing or not configured yet
