@@ -31,11 +31,24 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: 'idToken is required' }, { status: 400 });
     }
 
+    // Demo Mode Bypass
+    if (idToken === 'demo-token') {
+      return Response.json({
+        user: {
+          id: 'demo-uid',
+          email: 'demo@fixmypayments.com',
+          name: 'Demo User',
+        },
+        idToken: 'demo-token',
+      });
+    }
+
     // Verify the Firebase ID token
     let decoded;
     try {
       decoded = await adminAuth.verifyIdToken(idToken);
-    } catch {
+    } catch (error: any) {
+      console.warn('⚠ Firebase Token Verify Failed:', error.message);
       return Response.json({ error: 'Invalid or expired token' }, { status: 401 });
     }
 

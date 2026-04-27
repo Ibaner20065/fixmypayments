@@ -2,309 +2,756 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  ArrowLeft, 
-  Smartphone, 
-  CreditCard, 
-  Coins, 
-  ChevronDown, 
-  CheckCircle2, 
-  AlertCircle,
-  Scan,
-  History,
-  ShieldCheck,
-  Zap
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Send, ArrowRight, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 
-import { web3 } from '../lib/web3';
+interface PaymentStep {
+  id: number;
+  title: string;
+  completed: boolean;
+  current: boolean;
+}
 
-type PaymentMethod = 'upi' | 'card' | 'web3';
+interface BudgetAlert {
+  type: 'category_exceeded' | 'total_exceeded' | 'spike_detected';
+  category?: string;
+  currentAmount: number;
+  budgetLimit: number;
+  percentUsed: number;
+  message: string;
+}
 
 export default function PayPage() {
   const router = useRouter();
-  const [amount, setAmount] = useState('0');
-  const [method, setMethod] = useState<PaymentMethod>('upi');
-  const [recipient, setRecipient] = useState({ 
-    name: 'Indrayudh', 
-    handle: 'indrayudh@okaxis',
-    wallet: '0x323349666E39C29323f66D468641a0F98E98642a' // Example zkSync address
-  });
+  const [step, setStep] = useState<'recipient' | 'amount' | 'review' | 'processing' | 'success'>('recipient');
+  const [recipient, setRecipient] = useState('');
+  const [amount, setAmount] = useState('');
+  const [category, setCategory] = useState('general');
+  const [note, setNote] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [transactionId, setTransactionId] = useState('');
+  const [budgetAlerts, setBudgetAlerts] = useState<BudgetAlert[]>([]);
+  const [showAlertWarning, setShowAlertWarning] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [budgets, setBudgets] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    // Check if already connected
-    const checkConn = async () => {
+    // Fetch user's budgets on mount
+    const fetchBudgets = async () => {
       try {
-        const signer = await web3.connect();
-        const addr = await signer.getAddress();
-        setWalletAddress(addr);
-      } catch (e) {
-        // Silent fail if not connected yet
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+
+        const res = await fetch('/api/budget', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setBudgets(data.budget);
+        }
+      } catch (error) {
+        console.error('Failed to fetch budgets:', error);
       }
     };
-    if (method === 'web3') checkConn();
-  }, [method]);
 
-  // Handle keypad input
-  const handleKeypress = (key: string) => {
-    if (status !== 'idle') return;
-    
-    setAmount(prev => {
-      if (key === 'back') {
-        return prev.length > 1 ? prev.slice(0, -1) : '0';
-      }
-      if (key === '.') {
-        return prev.includes('.') ? prev : prev + '.';
-      }
-      if (prev === '0' && key !== '.') {
-        return key;
-      }
-      // Limit to 2 decimal places
-      if (prev.includes('.') && prev.split('.')[1].length >= 2) {
-        return prev;
-      }
-      return prev + key;
-    });
-  };
+    // Fetch user email from profile
+    const fetchUserEmail = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
 
-  const connectWallet = async () => {
-    try {
-      const signer = await web3.connect();
-      const addr = await signer.getAddress();
-      setWalletAddress(addr);
-    } catch (e: any) {
-      alert("Wallet Error: " + e.message);
+        const res = await fetch('/api/profile', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setUserEmail(data.email);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user email:', error);
+      }
+    };
+
+    fetchBudgets();
+    fetchUserEmail();
+  }, []);
+
+  const paymentSteps: PaymentStep[] = [
+    { id: 1, title: 'Recipient', completed: step !== 'recipient' && recipient !== '', current: step === 'recipient' },
+    { id: 2, title: 'Amount', completed: step === 'review' || step === 'processing' || step === 'success', current: step === 'amount' },
+    { id: 3, title: 'Review', completed: step === 'processing' || step === 'success', current: step === 'review' },
+    { id: 4, title: 'Confirm', completed: step === 'success', current: step === 'processing' || step === 'success' },
+  ];
+
+  const handleRecipientSubmit = () => {
+    if (recipient.trim()) {
+      setStep('amount');
     }
   };
 
-  const handlePay = async () => {
-    if (amount === '0' || isProcessing) return;
-    
-    if (method === 'web3' && !walletAddress) {
-      return connectWallet();
+  const handleAmountSubmit = () => {
+    if (amount && parseFloat(amount) > 0) {
+      setStep('review');
     }
+  };
 
-    setIsProcessing(true);
-    
+  // Check budget alerts before payment
+  const handleReviewPayment = async () => {
     try {
-      if (method === 'web3') {
-        // Real zkSync Gasless Execution
-        // Note: Using a generic paymaster for demonstration
-        const PAYMASTER_ADDRESS = "0x323349666E39C29323f66D468641a0F98E98642a"; 
-        
-        // Encode a simple transfer or contract call
-        const dummyData = "0x"; // Simplified for now
-        
-        await web3.executeGasless(
-          recipient.wallet,
-          dummyData,
-          PAYMASTER_ADDRESS
-        );
-      } else {
-        // Simulate real payment processing for UPI/Card
-        await new Promise(r => setTimeout(r, 2000));
-      }
-      
-      // Log transaction to our DB
-      await fetch('/api/transactions', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('fb-id-token')}`
-        },
-        body: JSON.stringify({ 
-          raw_text: `Paid ₹${amount} to ${recipient.name} via ${method.toUpperCase()}${method === 'web3' ? ' (GASLESS)' : ''}`,
-          force: true
-        })
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      // Fetch user's existing transactions
+      const txRes = await fetch('/api/transactions', {
+        headers: { 'Authorization': `Bearer ${token}` },
       });
-      setStatus('success');
-    } catch (e) {
-      console.error(e);
-      setStatus('error');
+
+      const txData = await txRes.json();
+      const existingTransactions = txData.transactions || [];
+
+      // Map category name to match budget categories
+      const categoryMap: Record<string, string> = {
+        general: 'Entertainment',
+        friend: 'Entertainment',
+        family: 'Entertainment',
+        work: 'Shopping',
+        rent: 'Utilities',
+        utilities: 'Utilities',
+        food: 'Food',
+        transport: 'Transport',
+      };
+
+      const mappedCategory = categoryMap[category] || 'Entertainment';
+      
+      // Call budget check (simulate client-side for now)
+      const checkResponse = await fetch('/api/check-spending', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          newAmount: parseFloat(amount),
+          newCategory: mappedCategory,
+          existingTransactions,
+          budgets,
+        }),
+      });
+
+      if (checkResponse.ok) {
+        const { alerts } = await checkResponse.json();
+        if (alerts && alerts.length > 0) {
+          setBudgetAlerts(alerts);
+          setShowAlertWarning(true);
+          return; // Don't proceed to payment yet
+        }
+      }
+
+      // No alerts, proceed to payment
+      setBudgetAlerts([]);
+      setShowAlertWarning(false);
+      await handlePayment();
+    } catch (error) {
+      console.error('Budget check error:', error);
+      // Continue anyway if check fails
+      await handlePayment();
+    }
+  };
+
+  const handlePayment = async (forcePayment = false) => {
+    setIsProcessing(true);
+    setStep('processing');
+    setShowAlertWarning(false);
+
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2500));
+      
+      const txId = `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      setTransactionId(txId);
+
+      // Send payment confirmation email
+      const emailResponse = await fetch('/api/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'payment-confirmation',
+          to: userEmail || recipient,
+          data: {
+            recipientName: recipient,
+            amount: parseFloat(amount).toLocaleString('en-IN'),
+            category: category.charAt(0).toUpperCase() + category.slice(1),
+            transactionId: txId,
+          },
+        }),
+      });
+
+      if (emailResponse.ok) {
+        console.log('Γ£à Payment confirmation email sent');
+      }
+
+      // Send budget alert email if applicable
+      if (budgetAlerts.length > 0 && userEmail) {
+        const alertEmailRes = await fetch('/api/send-alert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userEmail,
+            userName: userEmail.split('@')[0],
+            alerts: budgetAlerts,
+            emailType: forcePayment ? 'forced' : 'warning',
+          }),
+        });
+
+        if (alertEmailRes.ok) {
+          console.log('Γ£à Budget alert email sent');
+        }
+      }
+
+      setStep('success');
+    } catch (error) {
+      console.error('Payment error:', error);
     } finally {
       setIsProcessing(false);
     }
   };
 
+  const categories = [
+    { value: 'friend', label: 'Friend' },
+    { value: 'family', label: 'Family' },
+    { value: 'work', label: 'Work' },
+    { value: 'rent', label: 'Rent' },
+    { value: 'utilities', label: 'Utilities' },
+    { value: 'general', label: 'General' },
+  ];
+
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-[#CCFF00] selection:text-black">
+    <div style={{ minHeight: '100vh', background: '#f5f5f5', padding: '20px' }}>
       {/* Header */}
-      <header className="p-6 flex items-center justify-between sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
-        <button 
-          onClick={() => router.push('/dashboard')}
-          className="p-2 hover:bg-white/10 rounded-full transition-colors"
+      <div style={{ maxWidth: 600, margin: '0 auto', marginBottom: 40 }}>
+        <button
+          onClick={() => router.back()}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#666',
+            fontSize: '0.875rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            marginBottom: 24,
+            textDecoration: 'underline',
+          }}
         >
-          <ArrowLeft size={24} />
+          ΓåÉ Back
         </button>
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-[#CCFF00] rounded-lg flex items-center justify-center">
-            <Zap size={18} className="text-black" />
-          </div>
-          <span className="font-bold tracking-tight text-lg">FASTPAY</span>
-        </div>
-        <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-          <History size={24} />
-        </button>
-      </header>
+        <h1 style={{ fontSize: '2rem', fontWeight: 900, margin: '0 0 8px 0', color: '#000' }}>
+          Send Money
+        </h1>
+        <p style={{ margin: 0, fontSize: '0.875rem', color: '#666' }}>
+          Quick, secure, and instant transfers
+        </p>
+      </div>
 
-      <main className="max-w-md mx-auto p-6 pb-32">
-        {/* Recipient Profile */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center mb-10"
-        >
-          <div className="w-20 h-20 bg-gradient-to-br from-[#CCFF00] to-[#88FF00] rounded-full flex items-center justify-center mb-4 border-4 border-white/10 shadow-2xl">
-            <span className="text-3xl font-black text-black">{recipient.name[0]}</span>
-          </div>
-          <h1 className="text-xl font-bold">{recipient.name}</h1>
-          <p className="text-white/40 font-mono text-sm uppercase tracking-widest">{recipient.handle}</p>
-        </motion.div>
-
-        {/* Amount Display */}
-        <div className="relative mb-12 text-center">
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-4xl font-bold text-[#CCFF00]">₹</span>
-            <span className="text-7xl font-black tracking-tighter tabular-nums leading-none">
-              {amount}
-            </span>
-          </div>
-          {parseFloat(amount) > 5000 && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-4 inline-flex items-center gap-2 bg-red-500/10 text-red-400 px-4 py-2 rounded-full border border-red-500/20 text-xs font-bold uppercase tracking-wider"
-            >
-              <AlertCircle size={14} />
-              High Value Transaction
-            </motion.div>
-          )}
-        </div>
-
-        {/* Payment Methods */}
-        <div className="grid grid-cols-3 gap-3 mb-10">
-          {[
-            { id: 'upi', icon: Smartphone, label: 'UPI' },
-            { id: 'card', icon: CreditCard, label: 'CARD' },
-            { id: 'web3', icon: Coins, label: 'WEB3' }
-          ].map((m) => (
-            <button
-              key={m.id}
-              onClick={() => setMethod(m.id as PaymentMethod)}
-              className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
-                method === m.id 
-                  ? 'bg-[#CCFF00] border-[#CCFF00] text-black shadow-lg' 
-                  : 'bg-white/5 border-white/10 text-white/60 hover:border-white/30'
-              }`}
-            >
-              <m.icon size={24} />
-              <span className="text-[10px] font-black uppercase tracking-tighter">{m.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Numeric Keypad */}
-        <div className="grid grid-cols-3 gap-4 mb-10">
-          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'back'].map((key) => (
-            <button
-              key={key}
-              onClick={() => handleKeypress(key)}
-              className="h-16 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center text-2xl font-bold font-mono"
-            >
-              {key === 'back' ? <ArrowLeft size={24} /> : key}
-            </button>
-          ))}
-        </div>
-
-        {/* Security Info */}
-        <div className="flex items-center justify-center gap-2 text-white/30 text-xs font-medium uppercase tracking-widest mb-10">
-          <ShieldCheck size={14} />
-          Encrypted by FixMyPayments Protocol
-        </div>
-      </main>
-
-      {/* Pay Button / Footer Action */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black via-black to-transparent z-50">
-        <div className="max-w-md mx-auto">
-          <button
-            onClick={handlePay}
-            disabled={amount === '0' || isProcessing || status !== 'idle'}
-            className={`w-full py-5 rounded-2xl flex items-center justify-center gap-3 font-black text-lg transition-all ${
-              status === 'success' 
-                ? 'bg-green-500 text-white shadow-green-500/20' 
-                : amount === '0' 
-                  ? 'bg-white/10 text-white/30 cursor-not-allowed' 
-                  : 'bg-[#CCFF00] text-black shadow-lg shadow-[#CCFF00]/20 active:scale-95'
-            }`}
-          >
-            {isProcessing ? (
-              <>
-                <motion.div 
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                  className="w-6 h-6 border-4 border-black/20 border-t-black rounded-full"
+      {/* Progress Indicator */}
+      <div style={{ maxWidth: 600, margin: '0 auto', marginBottom: 40 }}>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'space-between' }}>
+          {paymentSteps.map((s, idx) => (
+            <div key={s.id} style={{ flex: 1 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  marginBottom: 12,
+                }}
+              >
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: s.completed || s.current ? '#000' : '#e0e0e0',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.875rem',
+                    fontWeight: 700,
+                  }}
+                >
+                  {s.completed ? <CheckCircle size={18} /> : s.id}
+                </div>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    color: s.current || s.completed ? '#000' : '#999',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {s.title}
+                </span>
+              </div>
+              {idx < paymentSteps.length - 1 && (
+                <div
+                  style={{
+                    height: 2,
+                    background: s.completed ? '#000' : '#e0e0e0',
+                    marginLeft: 16,
+                  }}
                 />
-                {method === 'web3' ? 'GASLESS EXECUTION...' : 'SECURING PAYMENT...'}
-              </>
-            ) : status === 'success' ? (
-              <>
-                <CheckCircle2 size={24} />
-                PAYMENT SENT!
-              </>
-            ) : (
-              method === 'web3' && !walletAddress ? 'CONNECT WALLET' : `PROCEED TO PAY ₹${amount}`
-            )}
-          </button>
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Success Modal Overlay */}
-      <AnimatePresence>
-        {status === 'success' && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 z-[100] bg-black flex items-center justify-center p-6"
-          >
-            <motion.div 
-              initial={{ scale: 0.8, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              className="flex flex-col items-center text-center"
+      {/* Main Card */}
+      <div
+        style={{
+          maxWidth: 600,
+          margin: '0 auto',
+          background: '#fff',
+          borderRadius: 16,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* STEP 1: RECIPIENT */}
+        {step === 'recipient' && (
+          <div style={{ padding: 32 }}>
+            <h2 style={{ margin: '0 0 24px 0', fontSize: '1.25rem', fontWeight: 700 }}>
+              Who are you paying?
+            </h2>
+            <input
+              type="text"
+              placeholder="Name, email, or phone"
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleRecipientSubmit()}
+              autoFocus
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: '2px solid #e0e0e0',
+                borderRadius: 8,
+                fontSize: '1rem',
+                marginBottom: 20,
+                boxSizing: 'border-box',
+                fontFamily: 'inherit',
+              }}
+            />
+            <button
+              onClick={handleRecipientSubmit}
+              disabled={!recipient.trim()}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                background: recipient.trim() ? '#000' : '#e0e0e0',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 8,
+                fontSize: '1rem',
+                fontWeight: 700,
+                cursor: recipient.trim() ? 'pointer' : 'not-allowed',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+              }}
             >
-              <div className="w-24 h-24 bg-[#CCFF00] rounded-full flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(204,255,0,0.5)]">
-                <CheckCircle2 size={48} className="text-black" />
-              </div>
-              <h2 className="text-3xl font-black mb-2">Transaction Success!</h2>
-              <p className="text-white/40 mb-12">₹{amount} successfully sent to {recipient.name}</p>
-              
-              <div className="w-full max-w-xs p-6 bg-white/5 rounded-3xl border border-white/10 mb-12">
-                <div className="flex justify-between mb-4">
-                  <span className="text-white/40 text-sm">Ref ID</span>
-                  <span className="font-mono text-sm">{Math.random().toString(36).substring(7).toUpperCase()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/40 text-sm">Method</span>
-                  <span className="font-mono text-sm uppercase">{method}</span>
-                </div>
-              </div>
-
-              <button 
-                onClick={() => router.push('/dashboard')}
-                className="px-12 py-4 bg-white text-black font-black rounded-2xl hover:scale-105 active:scale-95 transition-all"
-              >
-                DONE
-              </button>
-            </motion.div>
-          </motion.div>
+              Continue <ArrowRight size={18} />
+            </button>
+          </div>
         )}
-      </AnimatePresence>
 
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;600;800&family=Space+Mono:wght@400;700&display=swap');
-      `}</style>
+        {/* STEP 2: AMOUNT */}
+        {step === 'amount' && (
+          <div style={{ padding: 32 }}>
+            <div style={{ marginBottom: 24 }}>
+              <p style={{ margin: '0 0 8px 0', fontSize: '0.875rem', color: '#666', fontWeight: 600 }}>
+                PAYING TO
+              </p>
+              <p style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700 }}>
+                {recipient}
+              </p>
+            </div>
+
+            <h2 style={{ margin: '0 0 24px 0', fontSize: '1.25rem', fontWeight: 700 }}>
+              How much?
+            </h2>
+
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                marginBottom: 24,
+              }}
+            >
+              <span style={{ fontSize: '2rem', fontWeight: 700, marginRight: 8 }}>Γé╣</span>
+              <input
+                type="number"
+                placeholder="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAmountSubmit()}
+                autoFocus
+                style={{
+                  flex: 1,
+                  fontSize: '3rem',
+                  fontWeight: 700,
+                  border: 'none',
+                  borderBottom: '2px solid #000',
+                  outline: 'none',
+                  paddingBottom: 8,
+                  fontFamily: 'inherit',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <p style={{ margin: '0 0 12px 0', fontSize: '0.875rem', color: '#666', fontWeight: 600 }}>
+                CATEGORY
+              </p>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid #e0e0e0',
+                  borderRadius: 8,
+                  fontSize: '1rem',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {categories.map((cat) => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <p style={{ margin: '0 0 12px 0', fontSize: '0.875rem', color: '#666', fontWeight: 600 }}>
+                NOTE (optional)
+              </p>
+              <input
+                type="text"
+                placeholder="Add a note..."
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid #e0e0e0',
+                  borderRadius: 8,
+                  fontSize: '1rem',
+                  boxSizing: 'border-box',
+                  fontFamily: 'inherit',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <button
+                onClick={() => setStep('recipient')}
+                style={{
+                  padding: '12px 16px',
+                  background: '#f0f0f0',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Back
+              </button>
+              <button
+                onClick={handleAmountSubmit}
+                disabled={!amount || parseFloat(amount) <= 0}
+                style={{
+                  padding: '12px 16px',
+                  background: amount && parseFloat(amount) > 0 ? '#000' : '#e0e0e0',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  cursor: amount && parseFloat(amount) > 0 ? 'pointer' : 'not-allowed',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                }}
+              >
+                Review <ArrowRight size={18} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3: REVIEW */}
+        {step === 'review' && (
+          <div style={{ padding: 32 }}>
+            <h2 style={{ margin: '0 0 32px 0', fontSize: '1.25rem', fontWeight: 700 }}>
+              Review Payment
+            </h2>
+
+            <div
+              style={{
+                background: '#f9f9f9',
+                borderRadius: 12,
+                padding: 20,
+                marginBottom: 32,
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: 16,
+                  paddingBottom: 16,
+                  borderBottom: '1px solid #e0e0e0',
+                }}
+              >
+                <span style={{ color: '#666', fontWeight: 600 }}>Recipient</span>
+                <span style={{ fontWeight: 700 }}>{recipient}</span>
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: 16,
+                  paddingBottom: 16,
+                  borderBottom: '1px solid #e0e0e0',
+                }}
+              >
+                <span style={{ color: '#666', fontWeight: 600 }}>Amount</span>
+                <span style={{ fontWeight: 700, fontSize: '1.25rem' }}>Γé╣{parseFloat(amount).toLocaleString('en-IN')}</span>
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: 16,
+                  paddingBottom: 16,
+                  borderBottom: '1px solid #e0e0e0',
+                }}
+              >
+                <span style={{ color: '#666', fontWeight: 600 }}>Category</span>
+                <span style={{ fontWeight: 700 }}>{category.charAt(0).toUpperCase() + category.slice(1)}</span>
+              </div>
+
+              {note && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#666', fontWeight: 600 }}>Note</span>
+                  <span style={{ fontWeight: 700 }}>{note}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Budget Alert Warning */}
+            {showAlertWarning && budgetAlerts.length > 0 && (
+              <div
+                style={{
+                  background: '#fee',
+                  border: '2px solid #f44336',
+                  borderRadius: 12,
+                  padding: 20,
+                  marginBottom: 24,
+                }}
+              >
+                <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                  <AlertCircle size={24} style={{ color: '#f44336', flexShrink: 0 }} />
+                  <h3 style={{ margin: '0 0 12px 0', color: '#f44336', fontSize: '1rem', fontWeight: 700 }}>
+                    ΓÜá∩╕Å Budget Alert
+                  </h3>
+                </div>
+                {budgetAlerts.map((alert, idx) => (
+                  <div key={idx} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: idx < budgetAlerts.length - 1 ? '1px solid #f4867c' : 'none' }}>
+                    <p style={{ margin: '0 0 8px 0', fontSize: '0.875rem', color: '#f44336', fontWeight: 600 }}>
+                      {alert.message}
+                    </p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#c62828' }}>
+                      <span>Γé╣{alert.currentAmount.toLocaleString('en-IN')} / Γé╣{alert.budgetLimit.toLocaleString('en-IN')}</span>
+                      <span style={{ fontWeight: 700 }}>{alert.percentUsed}% used</span>
+                    </div>
+                  </div>
+                ))}
+                <p style={{ margin: '12px 0 0 0', fontSize: '0.75rem', color: '#c62828', fontStyle: 'italic' }}>
+                  You can still proceed, but this transaction will be marked and an alert email will be sent.
+                </p>
+              </div>
+            )}
+
+            <div
+              style={{
+                background: '#fff9e6',
+                border: '1px solid #ffe082',
+                borderRadius: 8,
+                padding: 12,
+                marginBottom: 24,
+                display: 'flex',
+                gap: 12,
+                alignItems: 'flex-start',
+              }}
+            >
+              <AlertCircle size={20} style={{ color: '#f57f17', flexShrink: 0, marginTop: 2 }} />
+              <p style={{ margin: 0, fontSize: '0.875rem', color: '#666' }}>
+                Payments are instant and cannot be reversed. Make sure all details are correct.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <button
+                onClick={() => setStep('amount')}
+                style={{
+                  padding: '12px 16px',
+                  background: '#f0f0f0',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Back
+              </button>
+              <button
+                onClick={() => showAlertWarning ? handlePayment(true) : handleReviewPayment()}
+                style={{
+                  padding: '12px 16px',
+                  background: showAlertWarning ? '#f44336' : '#000',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                }}
+              >
+                <Send size={18} /> {showAlertWarning ? 'Send Anyway' : 'Send Money'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 4: PROCESSING */}
+        {step === 'processing' && (
+          <div style={{ padding: 64, textAlign: 'center' }}>
+            <div style={{ marginBottom: 24 }}>
+              <Loader
+                size={48}
+                style={{
+                  animation: 'spin 1s linear infinite',
+                  color: '#000',
+                  margin: '0 auto',
+                }}
+              />
+            </div>
+            <h2 style={{ margin: '0 0 8px 0', fontSize: '1.25rem', fontWeight: 700 }}>
+              Processing Payment
+            </h2>
+            <p style={{ margin: 0, fontSize: '0.875rem', color: '#666' }}>
+              Please don't close this window...
+            </p>
+            <style>{`
+              @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+              }
+            `}</style>
+          </div>
+        )}
+
+        {/* STEP 5: SUCCESS */}
+        {step === 'success' && (
+          <div style={{ padding: 64, textAlign: 'center' }}>
+            <div
+              style={{
+                width: 80,
+                height: 80,
+                background: '#e8f5e9',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 24px',
+              }}
+            >
+              <CheckCircle size={48} style={{ color: '#4caf50' }} />
+            </div>
+            <h2 style={{ margin: '0 0 8px 0', fontSize: '1.5rem', fontWeight: 700 }}>
+              Payment Sent!
+            </h2>
+            <p style={{ margin: '0 0 32px 0', fontSize: '0.875rem', color: '#666' }}>
+              Γé╣{parseFloat(amount).toLocaleString('en-IN')} sent to {recipient}
+            </p>
+
+            <div
+              style={{
+                background: '#f9f9f9',
+                borderRadius: 12,
+                padding: 16,
+                marginBottom: 32,
+                textAlign: 'left',
+              }}
+            >
+              <p style={{ margin: '0 0 12px 0', fontSize: '0.75rem', color: '#666', fontWeight: 600 }}>
+                TRANSACTION ID
+              </p>
+              <p style={{ margin: 0, fontSize: '0.875rem', fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                {transactionId}
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <button
+                onClick={() => router.push('/dashboard')}
+                style={{
+                  padding: '12px 16px',
+                  background: '#f0f0f0',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => {
+                  setStep('recipient');
+                  setRecipient('');
+                  setAmount('');
+                  setNote('');
+                  setCategory('general');
+                }}
+                style={{
+                  padding: '12px 16px',
+                  background: '#000',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Send Again
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

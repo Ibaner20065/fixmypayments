@@ -1,17 +1,18 @@
 import { verifyToken, db, DEFAULT_BUDGETS } from '../../lib/firebase-admin';
+import { MOCK_BUDGET } from '../../lib/mockData';
 import type { NextRequest } from 'next/server';
 
-/**
- * GET /api/budget  — fetch current user's budget config
- * PUT /api/budget  — update budget config
- * Body for PUT: { total?: number, Food?: number, Transport?: number, ... }
- */
-
 export async function GET(request: NextRequest) {
+  // If Firebase is missing, return default budget immediately
   if (!db) return Response.json({ budget: DEFAULT_BUDGETS });
 
   const uid = await verifyToken(request.headers.get('authorization'));
   if (!uid) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Demo Mode: Serve rich mock data
+  if (uid === 'demo-uid') {
+    return Response.json({ budget: MOCK_BUDGET });
+  }
 
   try {
     const snap = await db.collection('users').doc(uid).get();
