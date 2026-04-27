@@ -44,13 +44,41 @@ export default function PayPage() {
     setIsProcessing(true);
     setStep('processing');
 
-    // Simulate payment processing
-    setTimeout(() => {
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2500));
+      
       const txId = `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       setTransactionId(txId);
+
+      // Send payment confirmation email
+      const emailResponse = await fetch('/api/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'payment-confirmation',
+          to: recipient, // In production, use actual email from user profile
+          data: {
+            recipientName: recipient,
+            amount: parseFloat(amount).toLocaleString('en-IN'),
+            category: category.charAt(0).toUpperCase() + category.slice(1),
+            transactionId: txId,
+          },
+        }),
+      });
+
+      if (emailResponse.ok) {
+        console.log('✅ Payment confirmation email sent');
+      } else {
+        console.warn('⚠️ Failed to send email notification');
+      }
+
       setStep('success');
+    } catch (error) {
+      console.error('Payment error:', error);
+    } finally {
       setIsProcessing(false);
-    }, 2500);
+    }
   };
 
   const categories = [
