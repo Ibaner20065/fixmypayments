@@ -1,10 +1,11 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 interface EmailOptions {
   to: string;
   subject: string;
   html: string;
-  text?: string;
 }
 
 interface EmailTemplate {
@@ -153,46 +154,29 @@ const emailTemplates: EmailTemplate = {
   `,
 };
 
-// Gmail transporter configuration
-async function createTransporter() {
-  // Using Gmail App Password
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
-    },
-  });
-
-  return transporter;
-}
-
-// Send email function
+// Send email function using Resend
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
+  if (!resend) {
+    console.warn('⚠️ RESEND_API_KEY not configured. Email not sent.');
+    console.log(`📧 Would send email to: ${options.to}`);
+    console.log(`📌 Subject: ${options.subject}`);
+    return false;
+  }
+
   try {
-    // Validate environment variables
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-      console.warn('⚠️ Gmail credentials not configured. Email not sent.');
-      console.log(`📧 Would send email to: ${options.to}`);
-      console.log(`📌 Subject: ${options.subject}`);
-      return false;
-    }
-
-    const transporter = await createTransporter();
-
-    const mailOptions = {
-      from: process.env.GMAIL_USER,
+    const { error } = await resend.emails.send({
+      from: 'FixMyPayments <notifications@fixmypayments.com>',
       to: options.to,
       subject: options.subject,
       html: options.html,
-      text: options.text,
-    };
+    });
 
-    const info = await transporter.sendMail(mailOptions);
+    if (error) {
+      console.error('❌ Resend API error:', error);
+      return false;
+    }
 
     console.log(`✅ Email sent successfully to ${options.to}`);
-    console.log(`📧 Message ID: ${info.messageId}`);
-
     return true;
   } catch (error) {
     console.error('❌ Failed to send email:', error);
@@ -202,5 +186,3 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
 
 // Export templates for use in API routes
 export { emailTemplates };
-
-export type { EmailOptions };
