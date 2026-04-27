@@ -2,9 +2,21 @@ import { parseTransaction } from '../../lib/classify';
 import type { NextRequest } from 'next/server';
 import db from '../../lib/db';
 import { randomUUID } from 'crypto';
+import { getSessionByToken } from '@/app/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    // Get authenticated user
+    const token = request.cookies.get('auth_token')?.value;
+    if (!token) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const session = getSessionByToken(token);
+    if (!session) {
+      return Response.json({ error: 'Session expired' }, { status: 401 });
+    }
+
     const { raw_text } = await request.json();
 
     if (!raw_text || typeof raw_text !== 'string') {
@@ -58,14 +70,25 @@ export async function POST(request: NextRequest) {
     const date = new Date().toISOString();
 
     const stmt = db.prepare(`
-      INSERT INTO transactions (id, raw_text, amount, category, merchant, date, confidence)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO transactions (id, user_id, raw_text, amount, category, merchant, date, confidence, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
-    stmt.run(id, raw_text, classified.amount, classified.category, classified.merchant, date, classified.confidence || 1.0);
+    stmt.run(
+      id,
+      session.user_id,
+      raw_text,
+      classified.amount,
+      classified.category,
+      classified.merchant,
+      date,
+      classified.confidence || 1.0,
+      date
+    );
 
     const record = {
       id,
+      user_id: session.user_id,
       raw_text,
       amount: classified.amount,
       category: classified.category,
@@ -81,20 +104,38 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
-  const transactions = db.prepare('SELECT * FROM transactions ORDER BY date DESC').all();
+export async function GET(request: NextRequest) {
+  try {
+    // Get authenticated user
+    const token = request.cookies.get('auth_token')?.value;
+    if (!token) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const session = getSessionByToken(token);
+    if (!session) {
+      return Response.json({ error: 'Session expired' }, { status: 401 });
+    }
+
+    const transactions = db
+      .prepare('SELECT * FROM transactions WHERE user_id = ? ORDER BY date DESC')
+      .all(session.user_id);
   
-  const byCategory: Record<string, number> = {};
-  let total = 0;
+    const byCategory: Record<string, number> = {};
+    let total = 0;
 
-  transactions.forEach((t: any) => {
-    byCategory[t.category] = (byCategory[t.category] || 0) + t.amount;
-    total += t.amount;
-  });
+    transactions.forEach((t: any) => {
+      byCategory[t.category] = (byCategory[t.category] || 0) + t.amount;
+      total += t.amount;
+    });
 
-  return Response.json({
-    transactions,
-    total,
-    by_category: byCategory,
-  });
+    return Response.json({
+      transactions,
+      total,
+      by_category: byCategory,
+    });
+  } catch (error) {
+    console.error('GET transactions error:', error);
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }
