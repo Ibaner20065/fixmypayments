@@ -63,27 +63,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Mock authentication - in production, verify with Supabase
-    // For testing: accept email "fixmypayments@example.com" and any password
-    if (email === 'fixmypayments@example.com' || email === 'test@example.com') {
-      const userId = `user_${Date.now()}`;
-      
+    // Accept any email/password for testing (mock authentication)
+    // In production, verify with Supabase
+    if (!email.includes('@')) {
       return Response.json(
-        {
-          id: userId,
-          email,
-          name: 'FixMyPayments User',
-          session: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          message: 'Login successful',
-        },
-        { status: 200 }
+        { error: 'Invalid email format' },
+        { status: 401 }
       );
     }
 
-    // Invalid credentials
+    // Create session
+    const sessionToken = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const userId = `user_${Date.now()}`;
+    
     return Response.json(
-      { error: 'Invalid email or password' },
-      { status: 401 }
+      {
+        id: userId,
+        email,
+        name: email.split('@')[0],
+        session: sessionToken,
+        message: 'Login successful',
+      },
+      { status: 200 }
     );
   } catch (error) {
     console.error('Login error:', error);

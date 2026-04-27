@@ -16,8 +16,8 @@ const navItems: CardNavItem[] = [
     textColor: '#CCFF00',
     links: [
       { label: 'OVERVIEW', href: '/dashboard', ariaLabel: 'Dashboard Overview' },
-      { label: 'TRANSACTIONS', href: '/dashboard', ariaLabel: 'All Transactions' },
-      { label: 'ANALYTICS', href: '/dashboard', ariaLabel: 'Spending Analytics' },
+      { label: 'TRANSACTIONS', href: '/transactions', ariaLabel: 'All Transactions' },
+      { label: 'ANALYTICS', href: '/analytics', ariaLabel: 'Spending Analytics' },
     ],
   },
   {
@@ -35,8 +35,9 @@ const navItems: CardNavItem[] = [
     bgColor: '#1a1a2e',
     textColor: '#CCFF00',
     links: [
-      { label: 'API KEYS', href: '/dashboard', ariaLabel: 'Manage API Keys' },
-      { label: 'WALLET', href: '/dashboard', ariaLabel: 'Wallet Settings' },
+      { label: 'API KEYS', href: '/settings/api-keys', ariaLabel: 'Manage API Keys' },
+      { label: 'WALLET', href: '/settings/wallet', ariaLabel: 'Wallet Settings' },
+      { label: 'BUDGETS', href: '/settings/alerts', ariaLabel: 'Budget Alerts' },
     ],
   },
 ];

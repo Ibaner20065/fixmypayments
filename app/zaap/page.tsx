@@ -3,18 +3,9 @@
 import React, { useState } from 'react';
 import CardNav from '../components/CardNav';
 import type { CardNavItem } from '../components/CardNav';
-import { ArrowRight, Wallet, RefreshCw, Zap } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 const navItems: CardNavItem[] = [
-  {
-    label: 'DASHBOARD',
-    bgColor: '#000000',
-    textColor: '#CCFF00',
-    links: [
-      { label: 'OVERVIEW', href: '/dashboard', ariaLabel: 'Dashboard Overview' },
-      { label: 'TRANSACTIONS', href: '/dashboard', ariaLabel: 'All Transactions' },
-    ],
-  },
   {
     label: 'WEB3',
     bgColor: '#121212',
@@ -25,70 +16,40 @@ const navItems: CardNavItem[] = [
       { label: 'PAYMASTER', href: '/zaap', ariaLabel: 'Paymaster Config' },
     ],
   },
-  {
-    label: 'SETTINGS',
-    bgColor: '#1a1a2e',
-    textColor: '#CCFF00',
-    links: [
-      { label: 'API KEYS', href: '/dashboard', ariaLabel: 'Manage API Keys' },
-      { label: 'WALLET', href: '/dashboard', ariaLabel: 'Wallet Settings' },
-    ],
-  },
 ];
 
-interface StepData {
-  action: string;
-  protocol: string;
-  asset: string;
+interface BundleStep {
+  id: number;
+  type: string;
+  amount: string;
+  status: 'pending' | 'completed';
 }
 
-const STEPS_CONFIG = [
-  {
-    num: '01',
-    title: 'WITHDRAW',
-    desc: 'Exit LP or lending position',
-    icon: <Wallet size={24} />,
-    protocols: ['Aave', 'Mute.io LP', 'Compound', 'Custom Pool'],
-    assets: ['ETH', 'USDC', 'USDT', 'ZAAP'],
-  },
-  {
-    num: '02',
-    title: 'SWAP',
-    desc: 'Convert to bridge asset',
-    icon: <RefreshCw size={24} />,
-    protocols: ['Mute.io DEX', 'SyncSwap', '1inch', 'Custom Router'],
-    assets: ['ETH', 'USDC', 'USDT', 'ZAAP'],
-  },
-  {
-    num: '03',
-    title: 'ZAAP!',
-    desc: 'Gasless transfer or action',
-    icon: <Zap size={24} />,
-    protocols: ['Wallet Transfer', 'OpenSea', 'Blur', 'Custom'],
-    assets: ['ETH', 'USDC', 'NFT', 'ZAAP'],
-  },
-];
-
 export default function ZaapPage() {
-  const [steps, setSteps] = useState<StepData[]>([
-    { action: '', protocol: '', asset: '' },
-    { action: '', protocol: '', asset: '' },
-    { action: '', protocol: '', asset: '' },
+  const [steps, setSteps] = useState<BundleStep[]>([
+    { id: 1, type: 'Approve Token', amount: 'USDC', status: 'completed' },
+    { id: 2, type: 'Swap', amount: '100 USDC → ETH', status: 'completed' },
+    { id: 3, type: 'Transfer', amount: '0.05 ETH', status: 'pending' },
   ]);
-  const [walletConnected, setWalletConnected] = useState(false);
 
-  const updateStep = (index: number, field: keyof StepData, value: string) => {
-    setSteps((prev) => {
-      const next = [...prev];
-      next[index] = { ...next[index], [field]: value };
-      return next;
-    });
+  const [newStep, setNewStep] = useState('');
+  const [amlStatus, setAmlStatus] = useState('verified');
+  const [paymasterStatus, setPaymasterStatus] = useState('active');
+
+  const addStep = () => {
+    if (newStep.trim()) {
+      setSteps([...steps, { id: steps.length + 1, type: newStep, amount: '', status: 'pending' }]);
+      setNewStep('');
+    }
   };
 
-  const allStepsValid = steps.every((s) => s.protocol && s.asset);
+  const executeBundle = async () => {
+    setSteps(steps.map(s => ({ ...s, status: 'completed' as const })));
+    alert('✅ Bundle executed successfully! Tx: 0x123abc...');
+  };
 
   return (
-    <div style={{ background: '#121212', minHeight: '100vh' }}>
+    <>
       <CardNav
         brandName="FIXMYPAYMENTS"
         items={navItems}
@@ -96,328 +57,153 @@ export default function ZaapPage() {
         menuColor="#000000"
         buttonBgColor="#CCFF00"
         buttonTextColor="#000000"
-        buttonText="LAUNCH APP"
+        buttonText="DASHBOARD"
         buttonHref="/dashboard"
         variant="disruptor"
       />
 
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 24px 80px' }}>
-        {/* Header */}
-        <div style={{ marginBottom: 40 }}>
-          <div
-            style={{
-              fontFamily: "'Space Mono', monospace",
-              fontSize: '0.6875rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#CCFF00',
-              marginBottom: 8,
-            }}
-          >
-            ZKSYNC ERA · GASLESS BUNDLER
-          </div>
-          <h1
-            style={{
-              fontFamily: "'Ranchers', cursive",
-              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-              textTransform: 'uppercase',
-              lineHeight: 0.85,
-              color: '#FFFFFF',
-              marginBottom: 16,
-            }}
-          >
-            ZAAP BUILDER
-          </h1>
-          <p
-            style={{
-              fontFamily: "'Plus Jakarta Sans', sans-serif",
-              fontSize: '1rem',
-              color: '#475569',
-              maxWidth: 500,
-            }}
-          >
-            Bundle 3 DeFi steps into 1 gasless transaction on zkSync Era.
-            Withdraw → Swap → Transfer in a single click.
-          </p>
-        </div>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px' }}>
+        <h1 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: 32, color: '#000' }}>
+          ZAAP BUNDLER
+        </h1>
 
-        {/* Wallet Connect */}
-        <div style={{ marginBottom: 40 }}>
-          <button
-            onClick={() => setWalletConnected(!walletConnected)}
-            id="wallet-connect-btn"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 10,
-              padding: '12px 28px',
-              minHeight: 48,
-              background: walletConnected ? '#CCFF00' : '#000000',
-              color: walletConnected ? '#000000' : '#FFFFFF',
-              border: '4px solid #000000',
-              boxShadow: '8px 8px 0px ' + (walletConnected ? '#CCFF00' : '#FFFFFF'),
-              fontFamily: "'Space Mono', monospace",
-              fontSize: '0.875rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              cursor: 'pointer',
-              transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translate(4px, 4px)';
-              e.currentTarget.style.boxShadow = '0 0 0 #000000';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translate(0, 0)';
-              e.currentTarget.style.boxShadow = `8px 8px 0px ${walletConnected ? '#CCFF00' : '#FFFFFF'}`;
-            }}
-          >
-            <Wallet size={18} />
-            {walletConnected ? '0x1234...ABCD · CONNECTED' : 'CONNECT WALLET'}
-          </button>
-        </div>
-
-        {/* Steps */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          {STEPS_CONFIG.map((step, i) => (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 32 }}>
+          <div style={{ background: '#FFFFFF', border: '4px solid #000', padding: 24 }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '1rem', fontWeight: 700 }}>AML STATUS</h3>
             <div
-              key={i}
               style={{
-                background: '#FFFFFF',
-                border: '8px solid #000000',
-                boxShadow: '8px 8px 0px #FFFFFF',
-                padding: 32,
-                position: 'relative',
-                overflow: 'hidden',
+                background: amlStatus === 'verified' ? '#E8F8E8' : '#FFE8E8',
+                border: `4px solid ${amlStatus === 'verified' ? '#00AA00' : '#FF6B6B'}`,
+                padding: 16,
+                marginBottom: 12,
               }}
             >
-              {/* Watermark step number */}
-              <div
-                style={{
-                  position: 'absolute',
-                  right: 20,
-                  top: -10,
-                  fontFamily: "'Ranchers', cursive",
-                  fontSize: '8rem',
-                  color: '#000000',
-                  opacity: 0.03,
-                  lineHeight: 1,
-                  pointerEvents: 'none',
-                }}
-              >
-                {step.num}
-              </div>
+              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600, color: amlStatus === 'verified' ? '#00AA00' : '#CC0000' }}>
+                {amlStatus === 'verified' ? '✓ VERIFIED' : '✗ UNVERIFIED'}
+              </p>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.75rem', color: '#666' }}>
+              Your wallet has passed AML verification. You can use PureFi Paymaster for gasless transactions.
+            </p>
+          </div>
 
-              {/* Step tag */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 16,
-                  left: -8,
-                  background: '#CCFF00',
-                  border: '4px solid #000000',
-                  padding: '4px 16px',
-                  fontFamily: "'Space Mono', monospace",
-                  fontSize: '0.625rem',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  transform: 'rotate(-2deg)',
-                }}
-              >
-                STEP {step.num}
-              </div>
+          <div style={{ background: '#FFFFFF', border: '4px solid #000', padding: 24 }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '1rem', fontWeight: 700 }}>PAYMASTER</h3>
+            <div
+              style={{
+                background: paymasterStatus === 'active' ? '#E8F8E8' : '#FFF3CD',
+                border: `4px solid ${paymasterStatus === 'active' ? '#00AA00' : '#FFC107'}`,
+                padding: 16,
+                marginBottom: 12,
+              }}
+            >
+              <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600, color: paymasterStatus === 'active' ? '#00AA00' : '#856404' }}>
+                {paymasterStatus === 'active' ? '✓ ACTIVE' : '⚠ INACTIVE'}
+              </p>
+            </div>
+            <p style={{ margin: 0, fontSize: '0.75rem', color: '#666' }}>
+              Paymaster allows gasless transactions. No gas fees required for approved operations.
+            </p>
+          </div>
+        </div>
 
-              <div style={{ marginTop: 24, display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
-                <div
-                  style={{
-                    width: 48,
-                    height: 48,
-                    background: '#000000',
-                    border: '4px solid #000000',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#CCFF00',
-                  }}
-                >
-                  {step.icon}
-                </div>
-                <div>
-                  <h3
-                    style={{
-                      fontFamily: "'Ranchers', cursive",
-                      fontSize: '1.5rem',
-                      textTransform: 'uppercase',
-                      lineHeight: 1,
-                    }}
-                  >
-                    {step.title}
-                  </h3>
-                  <p
-                    style={{
-                      fontFamily: "'Space Mono', monospace",
-                      fontSize: '0.6875rem',
-                      color: '#475569',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    {step.desc}
+        <div style={{ background: '#FFFFFF', border: '4px solid #000', padding: 32, marginBottom: 24 }}>
+          <h2 style={{ margin: '0 0 24px 0', fontSize: '1.25rem', fontWeight: 700 }}>
+            Bundle Steps
+          </h2>
+
+          {steps.map((step) => (
+            <div
+              key={step.id}
+              style={{
+                background: step.status === 'completed' ? '#E8F8E8' : '#FFF3CD',
+                border: `4px solid ${step.status === 'completed' ? '#00AA00' : '#FFC107'}`,
+                padding: 16,
+                marginBottom: 12,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <div>
+                <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600 }}>
+                  {step.id}. {step.type}
+                </p>
+                {step.amount && (
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#666' }}>
+                    {step.amount}
                   </p>
-                </div>
+                )}
               </div>
-
-              {/* Selectors */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <div>
-                  <label
-                    style={{
-                      fontFamily: "'Space Mono', monospace",
-                      fontSize: '0.625rem',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.1em',
-                      display: 'block',
-                      marginBottom: 6,
-                    }}
-                  >
-                    PROTOCOL
-                  </label>
-                  <select
-                    value={steps[i].protocol}
-                    onChange={(e) => updateStep(i, 'protocol', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 14px',
-                      border: '4px solid #000000',
-                      fontFamily: "'Space Mono', monospace",
-                      fontSize: '0.8125rem',
-                      background: '#FFFFFF',
-                      cursor: 'pointer',
-                      appearance: 'none',
-                    }}
-                  >
-                    <option value="">SELECT...</option>
-                    {step.protocols.map((p) => (
-                      <option key={p} value={p}>{p.toUpperCase()}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label
-                    style={{
-                      fontFamily: "'Space Mono', monospace",
-                      fontSize: '0.625rem',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.1em',
-                      display: 'block',
-                      marginBottom: 6,
-                    }}
-                  >
-                    ASSET
-                  </label>
-                  <select
-                    value={steps[i].asset}
-                    onChange={(e) => updateStep(i, 'asset', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 14px',
-                      border: '4px solid #000000',
-                      fontFamily: "'Space Mono', monospace",
-                      fontSize: '0.8125rem',
-                      background: '#FFFFFF',
-                      cursor: 'pointer',
-                      appearance: 'none',
-                    }}
-                  >
-                    <option value="">SELECT...</option>
-                    {step.assets.map((a) => (
-                      <option key={a} value={a}>{a}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+              <span
+                style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  color: step.status === 'completed' ? '#00AA00' : '#856404',
+                }}
+              >
+                {step.status === 'completed' ? '✓ DONE' : '⏳ PENDING'}
+              </span>
             </div>
           ))}
+
+          <div style={{ marginTop: 24, paddingTop: 24, borderTop: '2px solid #f0f0f0' }}>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <input
+                type="text"
+                placeholder="Add step (e.g., Swap to USDT)"
+                value={newStep}
+                onChange={(e) => setNewStep(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && addStep()}
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  border: '4px solid #000',
+                  fontFamily: "'Space Mono', monospace",
+                  fontSize: '0.875rem',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <button
+                onClick={addStep}
+                style={{
+                  padding: '12px 20px',
+                  background: '#CCFF00',
+                  border: '4px solid #000',
+                  fontFamily: "'Space Mono', monospace",
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                ADD
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Execute Button */}
-        <div style={{ marginTop: 40, textAlign: 'center' }}>
-          <button
-            disabled={!allStepsValid || !walletConnected}
-            id="zaap-execute-btn"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 12,
-              padding: '16px 48px',
-              minHeight: 56,
-              background: allStepsValid && walletConnected ? '#CCFF00' : '#333',
-              color: allStepsValid && walletConnected ? '#000000' : '#666',
-              border: '4px solid #000000',
-              boxShadow: allStepsValid && walletConnected ? '8px 8px 0px #000000' : 'none',
-              fontFamily: "'Ranchers', cursive",
-              fontSize: '1.5rem',
-              textTransform: 'uppercase',
-              cursor: allStepsValid && walletConnected ? 'pointer' : 'not-allowed',
-              transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-            }}
-            onMouseEnter={(e) => {
-              if (allStepsValid && walletConnected) {
-                e.currentTarget.style.transform = 'translate(4px, 4px)';
-                e.currentTarget.style.boxShadow = '0 0 0 #000000';
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translate(0, 0)';
-              if (allStepsValid && walletConnected) {
-                e.currentTarget.style.boxShadow = '8px 8px 0px #000000';
-              }
-            }}
-          >
-            <Zap size={20} />
-            ZAAP!
-            <ArrowRight size={20} />
-          </button>
-          {!walletConnected && (
-            <p
-              style={{
-                fontFamily: "'Space Mono', monospace",
-                fontSize: '0.6875rem',
-                color: '#475569',
-                textTransform: 'uppercase',
-                marginTop: 12,
-              }}
-            >
-              CONNECT WALLET TO EXECUTE
-            </p>
-          )}
-        </div>
+        <button
+          onClick={executeBundle}
+          style={{
+            width: '100%',
+            padding: '16px',
+            background: '#CCFF00',
+            border: '4px solid #000',
+            boxShadow: '4px 4px 0px #000',
+            fontFamily: "'Space Mono', monospace",
+            fontSize: '0.875rem',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+          }}
+        >
+          <Send size={18} /> EXECUTE BUNDLE (GASLESS)
+        </button>
       </div>
-
-      {/* Footer */}
-      <footer
-        style={{
-          borderTop: '4px solid #000000',
-          padding: '20px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 12,
-          fontFamily: "'Space Mono', monospace",
-          fontSize: '0.6875rem',
-          color: '#475569',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-        }}
-      >
-        <span>ZAAP BUNDLER © 2026</span>
-        <span>·</span>
-        <span>ZKSYNC ERA</span>
-      </footer>
-    </div>
+    </>
   );
 }
