@@ -76,9 +76,7 @@ export default function AuthPage() {
             lineHeight: 0.85,
           }}
         >
-          INDRAYUDH
-          <br />
-          BANDYOPADHYAY
+          FIXMYPAYMENTS
         </h1>
 
         <p

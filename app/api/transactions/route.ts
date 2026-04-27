@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 import db from '../../lib/db';
 import { randomUUID } from 'crypto';
 import { getSessionByToken } from '@/app/lib/auth';
+import { evaluateAndNotify } from '@/app/lib/aiAlert';
 
 export async function POST(request: NextRequest) {
   try {
@@ -96,6 +97,13 @@ export async function POST(request: NextRequest) {
       date,
       confidence: classified.confidence || 1.0,
     };
+
+    // Evaluate with AI and notify user if needed (email/sms notifications)
+    try {
+      await evaluateAndNotify(session.user_id, record);
+    } catch (err) {
+      console.error('evaluateAndNotify failed:', err);
+    }
 
     return Response.json(record, { status: 201 });
   } catch (error) {
