@@ -18,20 +18,25 @@ if (!admin.apps.length) {
       '⚠ Firebase Admin credentials missing. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY in .env.local'
     );
   } else {
-    admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey,
-      }),
-    });
+    try {
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey,
+        }),
+      });
+      console.log('✅ Firebase Admin initialized successfully');
+    } catch (error) {
+      console.error('❌ Firebase Admin init failed:', error);
+    }
   }
 }
 
 import { getFirestore } from 'firebase-admin/firestore';
 
 export const adminAuth = admin.apps.length ? admin.auth() : null;
-export const db = admin.apps.length ? getFirestore(admin.app(), 'fixmypayments1') : null;
+export const db = admin.apps.length ? getFirestore() : null;
 
 /** Verify a Firebase ID token from a Bearer header. Returns uid or null. */
 export async function verifyToken(authHeader: string | null): Promise<string | null> {
