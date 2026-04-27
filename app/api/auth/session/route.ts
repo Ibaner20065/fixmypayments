@@ -1,30 +1,30 @@
-import { supabaseServer } from '../../../lib/supabase-server';
+import { verifyToken, db } from '../../../lib/firebase-admin';
 import type { NextRequest } from 'next/server';
 
+/**
+ * GET /api/auth/session
+ * Returns the current user's profile from Firestore.
+ * Requires: Authorization: Bearer <Firebase ID token>
+ */
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization') || '';
-    const token = authHeader.startsWith('Bearer ')
-      ? authHeader.slice('Bearer '.length).trim()
-      : '';
-    if (!token) {
+    const uid = await verifyToken(request.headers.get('authorization'));
+    if (!uid) {
       return Response.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const {
-      data: { user },
-      error,
-    } = await supabaseServer.auth.getUser(token);
-
-    if (error || !user) {
-      return Response.json({ error: 'Not authenticated' }, { status: 401 });
+    if (!db) {
+      return Response.json({ error: 'Firebase not configured' }, { status: 500 });
     }
+
+    const snap = await db.collection('users').doc(uid).get();
+    const data = snap.data();
 
     return Response.json({
       user: {
-        id: user.id,
-        email: user.email,
-        name: user.user_metadata?.name || user.email,
+        id: uid,
+        email: data?.email || '',
+        name: data?.name || '',
       },
     });
   } catch {

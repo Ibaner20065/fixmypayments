@@ -13,44 +13,34 @@ export type SpendingAlert = {
   message: string;
 };
 
-// Default monthly budgets (in ₹). Users can customize later.
-const DEFAULT_BUDGETS: Record<string, number> = {
-  Food: 5000,
-  Transport: 3000,
-  Shopping: 8000,
-  Utilities: 4000,
-  Medical: 5000,
-  Entertainment: 3000,
-  Health: 3000,
-  Groceries: 6000,
-};
-
-const DEFAULT_TOTAL_BUDGET = 40000;
-
-// Spike threshold: if a single transaction exceeds this % of monthly budget
+// Spike threshold: if a single transaction exceeds this % of total monthly budget
 const SPIKE_THRESHOLD_PERCENT = 25;
 
 /**
- * Check if adding a transaction triggers any spending alerts
+ * Check if adding a transaction triggers any spending alerts.
+ * @param budgets  Per-user budget map from Firestore (includes 'total' key).
+ *                 Falls back to sensible defaults if a category is missing.
  */
 export function checkSpendingAlerts(
   newAmount: number,
   newCategory: string,
-  existingTransactions: { amount: number; category: string; date: string }[]
+  existingTransactions: { amount: number; category: string; date: string }[],
+  budgets: Record<string, number> = {}
 ): SpendingAlert[] {
   const alerts: SpendingAlert[] = [];
+  const totalBudget = budgets.total ?? 40000;
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
 
-  // Filter to current month transactions
+  // Filter to current month
   const monthlyTxs = existingTransactions.filter((t) => {
     const d = new Date(t.date);
     return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
   });
 
-  // 1. Check category budget
-  const categoryBudget = DEFAULT_BUDGETS[newCategory] || 5000;
+  // 1. Category budget check
+  const categoryBudget = budgets[newCategory] ?? 5000;
   const categoryTotal =
     monthlyTxs
       .filter((t) => t.category === newCategory)
@@ -72,33 +62,32 @@ export function checkSpendingAlerts(
     });
   }
 
-  // 2. Check total monthly budget
-  const monthlyTotal =
-    monthlyTxs.reduce((sum, t) => sum + t.amount, 0) + newAmount;
-  const totalPercent = (monthlyTotal / DEFAULT_TOTAL_BUDGET) * 100;
+  // 2. Total monthly budget check
+  const monthlyTotal = monthlyTxs.reduce((sum, t) => sum + t.amount, 0) + newAmount;
+  const totalPercent = (monthlyTotal / totalBudget) * 100;
 
   if (totalPercent >= 80) {
     alerts.push({
       type: 'total_exceeded',
       currentAmount: monthlyTotal,
-      budgetLimit: DEFAULT_TOTAL_BUDGET,
+      budgetLimit: totalBudget,
       percentUsed: Math.round(totalPercent),
       message:
         totalPercent >= 100
-          ? `🔥 TOTAL monthly budget EXCEEDED! ₹${monthlyTotal.toLocaleString('en-IN')} / ₹${DEFAULT_TOTAL_BUDGET.toLocaleString('en-IN')}`
-          : `📊 Total spending at ${Math.round(totalPercent)}% of monthly budget. ₹${monthlyTotal.toLocaleString('en-IN')} / ₹${DEFAULT_TOTAL_BUDGET.toLocaleString('en-IN')}`,
+          ? `🔥 TOTAL monthly budget EXCEEDED! ₹${monthlyTotal.toLocaleString('en-IN')} / ₹${totalBudget.toLocaleString('en-IN')}`
+          : `📊 Total spending at ${Math.round(totalPercent)}% of monthly budget. ₹${monthlyTotal.toLocaleString('en-IN')} / ₹${totalBudget.toLocaleString('en-IN')}`,
     });
   }
 
   // 3. Spike detection — single large transaction
-  const spikeThreshold = (DEFAULT_TOTAL_BUDGET * SPIKE_THRESHOLD_PERCENT) / 100;
+  const spikeThreshold = (totalBudget * SPIKE_THRESHOLD_PERCENT) / 100;
   if (newAmount >= spikeThreshold) {
     alerts.push({
       type: 'spike_detected',
       currentAmount: newAmount,
       budgetLimit: spikeThreshold,
-      percentUsed: Math.round((newAmount / DEFAULT_TOTAL_BUDGET) * 100),
-      message: `⚡ Large transaction detected! ₹${newAmount.toLocaleString('en-IN')} is ${Math.round((newAmount / DEFAULT_TOTAL_BUDGET) * 100)}% of your monthly budget.`,
+      percentUsed: Math.round((newAmount / totalBudget) * 100),
+      message: `⚡ Large transaction detected! ₹${newAmount.toLocaleString('en-IN')} is ${Math.round((newAmount / totalBudget) * 100)}% of your monthly budget.`,
     });
   }
 
@@ -111,7 +100,8 @@ export function checkSpendingAlerts(
 export async function sendAlertEmail(
   userEmail: string,
   userName: string,
-  alerts: SpendingAlert[]
+  alerts: SpendingAlert[],
+  emailType: 'warning' | 'blocked' | 'forced' = 'warning'
 ): Promise<boolean> {
   if (!resend) {
     console.warn('⚠ RESEND_API_KEY not set — skipping email alert');
@@ -139,6 +129,17 @@ export async function sendAlertEmail(
     )
     .join('');
 
+  let headerText = 'Hey ${userName}, your spending needs attention.';
+  let subjectText = `⚠️ Spending Alert — ${alerts[0].message.substring(0, 50)}`;
+
+  if (emailType === 'blocked') {
+    headerText = `ACTION REQUIRED: Transaction blocked. You are exceeding your budget.`;
+    subjectText = `🚨 BLOCKED: Budget Exceeded — Action Required`;
+  } else if (emailType === 'forced') {
+    headerText = `WARNING: You forced a transaction that exceeded your budget.`;
+    subjectText = `🔥 OVERBUDGET: Transaction Confirmed`;
+  }
+
   const html = `
     <div style="max-width: 600px; margin: 0 auto; font-family: 'Plus Jakarta Sans', Arial, sans-serif;">
       <div style="background: #000; padding: 24px; text-align: center;">
@@ -152,7 +153,7 @@ export async function sendAlertEmail(
 
       <div style="background: #CCFF00; padding: 20px 24px; border: 4px solid #000;">
         <h2 style="margin: 0; font-size: 18px; color: #000;">
-          Hey ${userName}, your spending needs attention.
+          ${headerText}
         </h2>
       </div>
 
@@ -187,7 +188,7 @@ export async function sendAlertEmail(
     const { error } = await resend.emails.send({
       from: 'FixMyPayments <alerts@fixmypayments.com>',
       to: [userEmail],
-      subject: `⚠️ Spending Alert — ${alerts[0].message.substring(0, 50)}`,
+      subject: subjectText,
       html,
     });
 

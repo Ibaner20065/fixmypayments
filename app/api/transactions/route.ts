@@ -1,45 +1,34 @@
 import { parseTransaction } from '../../lib/classify';
 import { checkSpendingAlerts, sendAlertEmail } from '../../lib/alerts';
-import { supabaseAdmin, supabaseServer } from '../../lib/supabase-server';
+import { verifyToken, db, getUserBudgets } from '../../lib/firebase-admin';
 import type { NextRequest } from 'next/server';
 
-function readBearerToken(request: NextRequest): string | null {
-  const authHeader = request.headers.get('authorization') || '';
-  if (!authHeader.startsWith('Bearer ')) return null;
-  return authHeader.slice('Bearer '.length).trim();
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+async function getAuthenticatedUid(request: NextRequest): Promise<string | null> {
+  return verifyToken(request.headers.get('authorization'));
 }
 
-async function getAuthenticatedUser(request: NextRequest) {
-  const token = readBearerToken(request);
-  if (!token) return null;
-
-  const { data, error } = await supabaseServer.auth.getUser(token);
-  if (error || !data.user) return null;
-
-  return data.user;
-}
+// ─── POST /api/transactions ──────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
+  if (!db) {
+    return Response.json({ error: 'Firebase not configured on server' }, { status: 500 });
+  }
+
+  const uid = await getAuthenticatedUid(request);
+  if (!uid) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
-    if (!supabaseAdmin) {
-      return Response.json(
-        { error: 'Supabase service role key missing on server' },
-        { status: 500 }
-      );
-    }
-
-    const user = await getAuthenticatedUser(request);
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { raw_text } = await request.json();
+    const { raw_text, force } = await request.json();
 
     if (!raw_text || typeof raw_text !== 'string') {
       return Response.json({ error: 'raw_text is required' }, { status: 400 });
     }
 
-    // Try LLM classification first
+    // Try LLM classification first, fall back to rule-based
     let classified;
     const apiKey = process.env.ANTHROPIC_API_KEY;
 
@@ -59,13 +48,10 @@ export async function POST(request: NextRequest) {
             messages: [{ role: 'user', content: raw_text }],
           }),
         });
-
         if (llmRes.ok) {
           const llmData = await llmRes.json();
           const text = llmData.content?.[0]?.text;
-          if (text) {
-            classified = JSON.parse(text);
-          }
+          if (text) classified = JSON.parse(text);
         }
       } catch {
         // Fall through to rule-based
@@ -82,93 +68,125 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    const { data: existingTxs } = await supabaseAdmin
-      .from('transactions')
-      .select('amount, category, date')
-      .eq('user_id', user.id);
+    // Fetch existing transactions for budget-alert calculation
+    const existingSnap = await db
+      .collection('transactions')
+      .where('userId', '==', uid)
+      .select('amount', 'category', 'date')
+      .get();
 
-    const record = {
-      user_id: user.id,
-      raw_text,
-      amount: classified.amount,
-      category: classified.category,
-      merchant: classified.merchant,
-    };
+    const existingTxs = existingSnap.docs.map((d) => {
+      const data = d.data();
+      return {
+        amount: Number(data.amount) || 0,
+        category: data.category as string,
+        date: data.date as string,
+      };
+    });
 
-    const { data: inserted, error: insertError } = await supabaseAdmin
-      .from('transactions')
-      .insert(record)
-      .select('id, raw_text, amount, category, merchant, date')
-      .single();
+    // Check budget alerts with user-specific limits FIRST, before saving
+    const budgets = await getUserBudgets(uid);
+    const alerts = checkSpendingAlerts(
+      classified.amount,
+      classified.category,
+      existingTxs,
+      budgets
+    );
 
-    if (insertError || !inserted) {
+    const isOverbudget = alerts.some((a) => a.percentUsed > 100);
+    const isWarning = alerts.some((a) => a.percentUsed > 80 && a.percentUsed <= 100);
+
+    // If over budget and not forcing, block and email
+    if (isOverbudget && !force) {
+      const userSnap = await db.collection('users').doc(uid).get();
+      const userData = userSnap.data();
+      if (userData?.email) {
+        const userName = userData.name || userData.email.split('@')[0];
+        await sendAlertEmail(userData.email, userName, alerts, 'blocked');
+      }
+
       return Response.json(
-        { error: insertError?.message || 'Could not save transaction' },
-        { status: 500 }
+        {
+          error: 'Budget Exceeded',
+          status: 'Blocked',
+          alerts,
+          amount: classified.amount,
+          category: classified.category,
+          merchant: classified.merchant,
+        },
+        { status: 403 } // 403 Forbidden until forced
       );
     }
 
-    const alerts = checkSpendingAlerts(
-      inserted.amount,
-      inserted.category,
-      (existingTxs || []).map((t) => ({
-        amount: Number(t.amount),
-        category: t.category,
-        date: t.date,
-      }))
-    );
+    // Save to Firestore
+    const record = {
+      userId: uid,
+      rawText: raw_text,
+      amount: classified.amount,
+      category: classified.category,
+      merchant: classified.merchant,
+      date: new Date().toISOString(),
+      status: 'Confirmed',
+    };
 
-    if (alerts.length > 0 && user.email) {
-      const userName =
-        (user.user_metadata?.name as string | undefined) ||
-        (user.email ? user.email.split('@')[0] : 'there');
-      await sendAlertEmail(user.email, userName, alerts);
+    const docRef = await db.collection('transactions').add(record);
+
+    // Send warning email if triggered (and we didn't just force an overbudget, or maybe we still send it)
+    if (alerts.length > 0) {
+      const userSnap = await db.collection('users').doc(uid).get();
+      const userData = userSnap.data();
+      if (userData?.email) {
+        const userName = userData.name || userData.email.split('@')[0];
+        // If we forced it, we could send a 'forced' email, but let's stick to warning/blocked logic
+        await sendAlertEmail(userData.email, userName, alerts, isOverbudget ? 'forced' : 'warning');
+      }
     }
 
-    return Response.json({ ...inserted, alerts }, { status: 201 });
+    return Response.json(
+      {
+        id: docRef.id,
+        ...record,
+        alerts,
+      },
+      { status: 201 }
+    );
   } catch {
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
+// ─── GET /api/transactions ───────────────────────────────────────────────────
+
 export async function GET(request: NextRequest) {
-  if (!supabaseAdmin) {
-    return Response.json(
-      { error: 'Supabase service role key missing on server' },
-      { status: 500 }
-    );
+  if (!db) {
+    return Response.json({ error: 'Firebase not configured on server' }, { status: 500 });
   }
 
-  const user = await getAuthenticatedUser(request);
-  if (!user) {
+  const uid = await getAuthenticatedUid(request);
+  if (!uid) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { data: transactions, error } = await supabaseAdmin
-    .from('transactions')
-    .select('id, raw_text, amount, category, merchant, date')
-    .eq('user_id', user.id)
-    .order('date', { ascending: false });
+  try {
+    const snap = await db
+      .collection('transactions')
+      .where('userId', '==', uid)
+      .orderBy('date', 'desc')
+      .get();
 
-  if (error) {
-    return Response.json(
-      { error: error.message || 'Could not fetch transactions' },
-      { status: 500 }
-    );
+    const transactions = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+    const byCategory: Record<string, number> = {};
+    let total = 0;
+
+    transactions.forEach((t: any) => {
+      const amount = Number(t.amount) || 0;
+      byCategory[t.category] = (byCategory[t.category] || 0) + amount;
+      total += amount;
+    });
+
+    return Response.json({ transactions, total, by_category: byCategory });
+  } catch {
+    return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const byCategory: Record<string, number> = {};
-  let total = 0;
-
-  (transactions || []).forEach((t) => {
-    const amount = Number(t.amount) || 0;
-    byCategory[t.category] = (byCategory[t.category] || 0) + amount;
-    total += amount;
-  });
-
-  return Response.json({
-    transactions: transactions || [],
-    total,
-    by_category: byCategory,
-  });
 }

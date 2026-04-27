@@ -5,6 +5,9 @@ import CardNav from '../components/CardNav';
 import TransactionInput from '../components/TransactionInput';
 import CategoryChart from '../components/CategoryChart';
 import TransactionList from '../components/TransactionList';
+import BudgetManager from '../components/BudgetManager';
+import StockWidget from '../components/StockWidget';
+import PaymasterWidget from '../components/PaymasterWidget';
 import { parseTransaction, classifyWithLLM } from '../lib/classify';
 import type { ClassifiedTransaction } from '../lib/classify';
 import type { CardNavItem } from '../components/CardNav';
@@ -37,6 +40,7 @@ const navItems: CardNavItem[] = [
     links: [
       { label: 'API KEYS', href: '/dashboard', ariaLabel: 'Manage API Keys' },
       { label: 'WALLET', href: '/dashboard', ariaLabel: 'Wallet Settings' },
+      { label: 'LOGOUT', href: '/logout', ariaLabel: 'Logout' },
     ],
   },
 ];
@@ -54,6 +58,13 @@ export default function DashboardPage() {
     { name: string; symbol: string; market_cap_rank: number }[]
   >([]);
   const [authError, setAuthError] = useState('');
+  const [pendingBlock, setPendingBlock] = useState<{
+    rawText: string;
+    amount: number;
+    merchant: string;
+    category: string;
+    alerts: any[];
+  } | null>(null);
 
   const showToast = (message: string) => {
     setToast({ visible: true, message });
@@ -61,7 +72,10 @@ export default function DashboardPage() {
   };
 
   const accessToken =
-    typeof window !== 'undefined' ? localStorage.getItem('sb-access-token') : null;
+    typeof window !== 'undefined' ? localStorage.getItem('fb-id-token') : null;
+
+  const [byCategory, setByCategory] = useState<Record<string, number>>({});
+  const [budgetMap, setBudgetMap] = useState<Record<string, number>>({});
 
   useEffect(() => {
     if (!accessToken) {
@@ -87,9 +101,21 @@ export default function DashboardPage() {
           emoji: '💳',
         }))
       );
+      setByCategory(data.by_category || {});
+    };
+
+    const loadBudget = async () => {
+      try {
+        const res = await fetch('/api/budget', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        const data = await res.json();
+        if (res.ok) setBudgetMap(data.budget || {});
+      } catch (e) {}
     };
 
     void loadTransactions();
+    void loadBudget();
   }, [accessToken]);
 
   useEffect(() => {
@@ -142,6 +168,17 @@ export default function DashboardPage() {
     const saved = await saveRes.json();
 
     if (!saveRes.ok) {
+      if (saved.status === 'Blocked') {
+        setPendingBlock({
+          rawText: text,
+          amount: saved.amount,
+          merchant: saved.merchant,
+          category: saved.category,
+          alerts: saved.alerts,
+        });
+        showToast('🚨 BUDGET EXCEEDED. CONFIRMATION REQUIRED.');
+        return;
+      }
       showToast(`⚠ ${saved.error || 'SAVE FAILED'}`);
       return;
     }
@@ -160,6 +197,38 @@ export default function DashboardPage() {
     if (Array.isArray(saved.alerts) && saved.alerts.length > 0) {
       showToast(`🚨 BUDGET ALERT: ${saved.alerts[0].message}`);
     }
+  };
+
+  const handleForceTransaction = async () => {
+    if (!pendingBlock || !accessToken) return;
+    setIsLoading(true);
+    const saveRes = await fetch('/api/transactions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ raw_text: pendingBlock.rawText, force: true }),
+    });
+    const saved = await saveRes.json();
+    setIsLoading(false);
+    setPendingBlock(null);
+
+    if (!saveRes.ok) {
+      showToast(`⚠ ${saved.error || 'SAVE FAILED'}`);
+      return;
+    }
+
+    setTransactions((prev) => [
+      ...prev,
+      {
+        ...pendingBlock,
+        ...saved,
+        amount: Number(saved.amount) || pendingBlock.amount,
+        emoji: '🚨',
+      },
+    ]);
+    showToast(`🚨 FORCED ₹${pendingBlock.amount} → ${pendingBlock.category.toUpperCase()}`);
   };
 
   const total = useMemo(
@@ -355,53 +424,49 @@ export default function DashboardPage() {
 
         {/* Section: Transaction Input */}
         <div style={{ marginBottom: 40 }}>
-          <div
-            style={{
-              fontFamily: "'Space Mono', monospace",
-              fontSize: '0.6875rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#CCFF00',
-              marginBottom: 12,
-            }}
-          >
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#CCFF00', marginBottom: 12 }}>
             ⚡ QUICK ADD
           </div>
-          <TransactionInput onAdd={handleAddTransaction} isLoading={isLoading} />
+          <div style={{ position: 'relative' }}>
+            <TransactionInput onAdd={handleAddTransaction} isLoading={isLoading} budget={budgetMap} spentByCategory={byCategory} />
+          </div>
+        </div>
+
+        {/* Section: Budget Manager */}
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#CCFF00', marginBottom: 12 }}>
+            💰 BUDGET MANAGER
+          </div>
+          <BudgetManager accessToken={accessToken} spentByCategory={byCategory} />
         </div>
 
         {/* Section: Charts */}
         <div style={{ marginBottom: 40 }}>
-          <div
-            style={{
-              fontFamily: "'Space Mono', monospace",
-              fontSize: '0.6875rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#CCFF00',
-              marginBottom: 12,
-            }}
-          >
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#CCFF00', marginBottom: 12 }}>
             📊 SPENDING BREAKDOWN
           </div>
           <CategoryChart transactions={transactions} />
         </div>
 
+        {/* Section: Stock Recommendations */}
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#CCFF00', marginBottom: 12 }}>
+            📈 STOCK RECOMMENDATIONS
+          </div>
+          <StockWidget />
+        </div>
+
+        {/* Section: Web3 Paymaster */}
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#CCFF00', marginBottom: 12 }}>
+            ⚡ WEB3 DEFI
+          </div>
+          <PaymasterWidget />
+        </div>
+
         {/* Section: Recent Transactions */}
         <div>
-          <div
-            style={{
-              fontFamily: "'Space Mono', monospace",
-              fontSize: '0.6875rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              color: '#CCFF00',
-              marginBottom: 12,
-            }}
-          >
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#CCFF00', marginBottom: 12 }}>
             📋 RECENT ACTIVITY
           </div>
           <TransactionList transactions={transactions} />
@@ -437,6 +502,93 @@ export default function DashboardPage() {
           }
         }
       `}</style>
+      {/* Pending Block Modal */}
+      {pendingBlock && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: 20,
+          }}
+        >
+          <div
+            style={{
+              background: '#FFFFFF',
+              border: '4px solid #ff0000',
+              boxShadow: '8px 8px 0px #ff0000',
+              padding: 24,
+              maxWidth: 400,
+              width: '100%',
+            }}
+          >
+            <div
+              style={{
+                fontFamily: "'Space Mono', monospace",
+                fontSize: '1rem',
+                fontWeight: 700,
+                color: '#ff0000',
+                marginBottom: 16,
+              }}
+            >
+              🚨 BUDGET EXCEEDED
+            </div>
+            <p
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: '0.875rem',
+                marginBottom: 24,
+                lineHeight: 1.6,
+              }}
+            >
+              You are trying to spend <strong>₹{pendingBlock.amount.toLocaleString('en-IN')}</strong> on <strong>{pendingBlock.category}</strong>. 
+              This will exceed your defined budget. Are you sure you want to proceed?
+            </p>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                onClick={() => setPendingBlock(null)}
+                style={{
+                  flex: 1,
+                  background: '#000',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '12px 0',
+                  fontFamily: "'Space Mono', monospace",
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  textTransform: 'uppercase',
+                }}
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={handleForceTransaction}
+                disabled={isLoading}
+                style={{
+                  flex: 1,
+                  background: '#ff0000',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '12px 0',
+                  fontFamily: "'Space Mono', monospace",
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  textTransform: 'uppercase',
+                  opacity: isLoading ? 0.7 : 1,
+                }}
+              >
+                {isLoading ? 'FORCING...' : 'FORCE PROCEED'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
