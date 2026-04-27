@@ -1749,7 +1749,7 @@ function resolveReasoningEffortInternal(cwd, agentType) {
   // Ensure we don't return a reasoning_effort when the resolved model is a Claude model
   // because Claude runtimes do not accept the `reasoning_effort` parameter.
   const resolvedModel = resolveModelInternal(cwd, agentType);
-  if (typeof resolvedModel === 'string' && resolvedModel.startsWith('claude')) return null;
+  if (typeof resolvedModel === 'string' && /claude/i.test(resolvedModel)) return null;
   return entry?.reasoning_effort || null;
 }
 
