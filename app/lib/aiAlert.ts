@@ -1,10 +1,9 @@
 import db from './db';
-import fetch from 'node-fetch';
 import { sendEmail } from './email';
 
 export async function evaluateAndNotify(userId: string, transaction: any) {
   try {
-    const user = db.prepare('SELECT email, name FROM users WHERE id = ?').get(userId);
+    const user = db.prepare('SELECT email, name FROM users WHERE id = ?').get(userId) as any;
     if (!user || !user.email) return null;
 
     // Fetch recent transactions for context
