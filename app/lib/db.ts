@@ -8,7 +8,9 @@ if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 
-const db = new Database(path.join(dataDir, 'transactions.db'));
+// Use in-memory database for Vercel (serverless doesn't support SQLite persistence)
+const isVercel = process.env.VERCEL === '1';
+const db = new Database(isVercel ? ':memory:' : path.join(dataDir, 'transactions.db'));
 
 db.pragma('journal_mode = WAL');
 

@@ -1,0 +1,10 @@
+node_modules
+.git
+.env.local
+.next/cache
+.planning
+contracts
+.agent
+.gemini
+*.worktrees
+build_output.txt
