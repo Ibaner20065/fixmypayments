@@ -56,7 +56,8 @@ export async function POST(request: NextRequest) {
       },
       idToken, // echo back so client can store it
     });
-  } catch {
+  } catch (error: any) {
+    console.error('❌ Login API Error:', error);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

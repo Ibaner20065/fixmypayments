@@ -158,13 +158,14 @@ export async function POST(request: NextRequest) {
 // ─── GET /api/transactions ───────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
-  if (!db) {
-    return Response.json({ error: 'Firebase not configured on server' }, { status: 500 });
-  }
-
   const uid = await getAuthenticatedUid(request);
   if (!uid) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // If Firebase is missing or not configured yet
+  if (!db) {
+    return Response.json({ transactions: [], total: 0, by_category: {} });
   }
 
   try {
@@ -186,7 +187,9 @@ export async function GET(request: NextRequest) {
     });
 
     return Response.json({ transactions, total, by_category: byCategory });
-  } catch {
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error: any) {
+    console.warn('⚠ Firestore Fetch Failed (Transactions):', error.message);
+    // Return empty results instead of crashing the dashboard
+    return Response.json({ transactions: [], total: 0, by_category: {} });
   }
 }

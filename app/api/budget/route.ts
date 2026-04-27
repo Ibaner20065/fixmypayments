@@ -8,7 +8,7 @@ import type { NextRequest } from 'next/server';
  */
 
 export async function GET(request: NextRequest) {
-  if (!db) return Response.json({ error: 'Firebase not configured' }, { status: 500 });
+  if (!db) return Response.json({ budget: DEFAULT_BUDGETS });
 
   const uid = await verifyToken(request.headers.get('authorization'));
   if (!uid) return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -18,8 +18,9 @@ export async function GET(request: NextRequest) {
     const data = snap.data();
     const budget = data?.budget ?? DEFAULT_BUDGETS;
     return Response.json({ budget });
-  } catch {
-    return Response.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error: any) {
+    console.warn('⚠ Firestore Fetch Failed (Budget):', error.message);
+    return Response.json({ budget: DEFAULT_BUDGETS });
   }
 }
 

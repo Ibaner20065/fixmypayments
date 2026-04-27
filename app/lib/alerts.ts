@@ -1,8 +1,13 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
+// Gmail Configuration
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'indrayudhbanerjee26@gmail.com',
+    pass: 'Ibaner@2006',
+  },
+});
 
 export type SpendingAlert = {
   type: 'category_exceeded' | 'total_exceeded' | 'spike_detected';
@@ -95,7 +100,7 @@ export function checkSpendingAlerts(
 }
 
 /**
- * Send email alert via Resend
+ * Send email alert via Gmail
  */
 export async function sendAlertEmail(
   userEmail: string,
@@ -103,11 +108,6 @@ export async function sendAlertEmail(
   alerts: SpendingAlert[],
   emailType: 'warning' | 'blocked' | 'forced' = 'warning'
 ): Promise<boolean> {
-  if (!resend) {
-    console.warn('⚠ RESEND_API_KEY not set — skipping email alert');
-    return false;
-  }
-
   if (alerts.length === 0) return false;
 
   const alertRows = alerts
@@ -185,20 +185,15 @@ export async function sendAlertEmail(
   `;
 
   try {
-    const { error } = await resend.emails.send({
-      from: 'FixMyPayments <alerts@fixmypayments.com>',
-      to: [userEmail],
+    await transporter.sendMail({
+      from: '"FixMyPayments Alerts" <indrayudhbanerjee26@gmail.com>',
+      to: userEmail,
       subject: subjectText,
       html,
     });
-
-    if (error) {
-      console.error('Email send error:', error);
-      return false;
-    }
     return true;
   } catch (err) {
-    console.error('Email error:', err);
+    console.error('Gmail Error:', err);
     return false;
   }
 }
