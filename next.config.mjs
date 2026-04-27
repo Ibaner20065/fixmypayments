@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['better-sqlite3'],
+  serverExternalPackages: ['firebase-admin', 'yahoo-finance2'],
 };
 
 export default nextConfig;
