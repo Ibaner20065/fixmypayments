@@ -77,7 +77,7 @@ export default function LandingPage() {
         buttonBgColor="#000000"
         buttonTextColor="#FFFFFF"
         buttonText="START FREE"
-        buttonHref="/dashboard"
+        buttonHref="/auth"
         variant="yellow-saas"
       />
 
@@ -110,7 +110,7 @@ export default function LandingPage() {
               AI-powered expense tracking meets gasless DeFi. Type a transaction, see it classified instantly, and bundle multi-step DeFi into one click.
             </p>
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <Link href="/dashboard" className="y-btn-primary">
+              <Link href="/auth" className="y-btn-primary">
                 LAUNCH APP <ArrowRight size={16} />
               </Link>
               <Link href="#features" className="y-btn-secondary">
@@ -472,7 +472,7 @@ export default function LandingPage() {
         <p style={{ fontSize: '1.125rem', color: '#333', marginBottom: 32, maxWidth: 500, margin: '0 auto 32px' }}>
           Start tracking expenses and bundling DeFi transactions in seconds. No setup required.
         </p>
-        <Link href="/dashboard" className="y-btn-primary" style={{ fontSize: '1.125rem', padding: '16px 40px' }}>
+        <Link href="/auth" className="y-btn-primary" style={{ fontSize: '1.125rem', padding: '16px 40px' }}>
           START FREE <ChevronRight size={18} />
         </Link>
       </section>
