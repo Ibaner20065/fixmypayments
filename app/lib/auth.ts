@@ -70,7 +70,7 @@ export function createSession(userId: string, expiresInHours: number = 24): Sess
 }
 
 export function getSessionByToken(token: string): Session | undefined {
-  const stmt = db.prepare('SELECT * FROM sessions WHERE token = ? AND expires_at > datetime("now")');
+  const stmt = db.prepare('SELECT * FROM sessions WHERE token = ? AND expires_at > datetime(\'now\')');
   return stmt.get(token) as Session | undefined;
 }
 

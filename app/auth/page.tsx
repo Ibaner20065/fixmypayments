@@ -76,9 +76,9 @@ export default function AuthPage() {
             lineHeight: 0.85,
           }}
         >
-          FIX MY
+          INDRAYUDH
           <br />
-          PAYMENTS
+          BANDYOPADHYAY
         </h1>
 
         <p
@@ -90,7 +90,7 @@ export default function AuthPage() {
             lineHeight: 1.6,
           }}
         >
-          AI-powered personal finance. Gasless DeFi on zkSync. In one app.
+          AI Personal Finance Assistant
         </p>
 
         <div

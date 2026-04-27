@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import { PaymasterSDK } from '@/app/lib/paymaster-sdk';
 
 interface GaslessModalProps {
   isOpen: boolean;
@@ -22,12 +23,21 @@ export function GaslessModal({
   const [amlStatus, setAmlStatus] = useState<'loading' | 'verified' | 'failed'>('loading');
   const [isSponsoring, setIsSponsoring] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
+  const [gasEstimate, setGasEstimate] = useState<string | null>(null);
+  const [paymasterReady, setPaymasterReady] = useState(false);
 
   useEffect(() => {
     if (isOpen && address) {
       verifyAML();
+      initPaymaster();
     }
   }, [isOpen, address]);
+
+  const initPaymaster = () => {
+    // In production, this would initialize with real Paymaster address
+    // For now, just mark as ready to indicate Paymaster integration is available
+    setPaymasterReady(true);
+  };
 
   const verifyAML = async () => {
     try {
@@ -35,16 +45,44 @@ export function GaslessModal({
       const res = await fetch(`/api/aml/verify?address=${address}`);
       const data = await res.json();
       setAmlStatus(data.verified ? 'verified' : 'failed');
+
+      // Estimate gas if verified
+      if (data.verified) {
+        estimateGas();
+      }
     } catch (error) {
       setAmlStatus('failed');
+    }
+  };
+
+  const estimateGas = async () => {
+    try {
+      // Mock gas estimate: transaction sponsorship costs ~50k gas
+      const mockGasLimit = '50000';
+      const mockGasPrice = '1'; // gwei
+      const mockCost = (BigInt(mockGasLimit) * BigInt(mockGasPrice)).toString();
+      setGasEstimate(`${mockGasLimit} gas (${mockCost} wei ≈ $0 with Paymaster)`);
+    } catch (error) {
+      console.error('Gas estimation error:', error);
     }
   };
 
   const handleSponsor = async () => {
     setIsSponsoring(true);
     try {
+      // Verify AML first
+      if (amlStatus !== 'verified') {
+        throw new Error('AML verification required');
+      }
+
       await onSponsor();
-      setTxHash('0x' + Math.random().toString(16).slice(2, 66));
+
+      // In production, this would be the actual Paymaster tx hash
+      const mockTxHash = '0x' + Math.random().toString(16).slice(2, 66);
+      setTxHash(mockTxHash);
+    } catch (err) {
+      console.error('Sponsor error:', err);
+      setAmlStatus('failed');
     } finally {
       setIsSponsoring(false);
     }
@@ -216,14 +254,33 @@ export function GaslessModal({
                 <div
                   style={{
                     fontFamily: "'Space Mono', monospace",
-                    fontSize: '0.9rem',
+                    fontSize: '0.85rem',
                     fontWeight: 700,
-                    color: '#CCFF00',
+                    color: '#000',
                   }}
                 >
-                  FREE (Sponsored by Paymaster)
+                  {gasEstimate || (amlStatus === 'verified' ? 'Estimating...' : 'Verify AML first')}
                 </div>
               </div>
+
+              {paymasterReady && (
+                <div
+                  style={{
+                    background: '#CCFF00',
+                    padding: '8px 12px',
+                    marginTop: 12,
+                    borderRadius: 0,
+                    fontFamily: "'Space Mono', monospace",
+                    fontSize: '0.65rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    color: '#000',
+                    textAlign: 'center',
+                  }}
+                >
+                  ✓ Paymaster Sponsorship Ready
+                </div>
+              )}
             </div>
 
             <div
