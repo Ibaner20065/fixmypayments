@@ -6,6 +6,7 @@ import {
   hashPassword,
   createSession,
 } from '@/app/lib/auth';
+import { rateLimit } from '@/app/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +14,21 @@ export async function POST(req: NextRequest) {
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
+    }
+
+    // Rate limit by IP (20 signup attempts per minute per IP)
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    const identifier = `signup:${ip}`;
+    const rateLimitResult = rateLimit(identifier, 20, 60 * 1000);
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Too many signup attempts. Please try again later.',
+          retryAfter: Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000),
+        },
+        { status: 429 }
+      );
     }
 
     // Check if user exists
