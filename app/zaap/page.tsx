@@ -23,6 +23,7 @@ const navItems: CardNavItem[] = [
       { label: 'ZAAP BUNDLER', href: '/zaap', ariaLabel: 'Bundle Transactions' },
       { label: 'AML STATUS', href: '/zaap', ariaLabel: 'AML Verification' },
       { label: 'PAYMASTER', href: '/zaap', ariaLabel: 'Paymaster Config' },
+      { label: 'KYC ORCHESTRATOR', href: '/kyc', ariaLabel: 'Identity Orchestrator' },
     ],
   },
   {
@@ -32,6 +33,16 @@ const navItems: CardNavItem[] = [
     links: [
       { label: 'API KEYS', href: '/dashboard', ariaLabel: 'Manage API Keys' },
       { label: 'WALLET', href: '/dashboard', ariaLabel: 'Wallet Settings' },
+    ],
+  },
+  {
+    label: 'YOUR ACCOUNT',
+    bgColor: '#f5f5f5',
+    textColor: '#000000',
+    links: [
+      { label: 'PROFILE', href: '/profile', ariaLabel: 'View Profile' },
+      { label: 'FIX YOUR ACCOUNT', href: '/profile', ariaLabel: 'Fix Your Account' },
+      { label: 'CHANGE YOUR GMAIL', href: '/profile', ariaLabel: 'Change Gmail' },
     ],
   },
 ];
