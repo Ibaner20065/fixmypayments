@@ -188,6 +188,52 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            <div style={{ marginBottom: 40, border: '4px solid #000', padding: 32, background: '#CCFF00', boxShadow: '8px 8px 0px #000' }}>
+              <h2 style={{ fontFamily: "'Space Mono', monospace", fontSize: '1.25rem', fontWeight: 700, margin: '0 0 16px 0', textTransform: 'uppercase' }}>
+                QUICK ACTIONS
+              </h2>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <a
+                  href="/kyc"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: '#000',
+                    color: '#FFF',
+                    padding: '16px',
+                    textDecoration: 'none',
+                    fontFamily: "'Space Mono', monospace",
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    border: '2px solid #000',
+                    textAlign: 'center'
+                  }}
+                >
+                  KYC VERIFICATION
+                </a>
+                <a
+                  href="/pay"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: '#FFF',
+                    color: '#000',
+                    padding: '16px',
+                    textDecoration: 'none',
+                    fontFamily: "'Space Mono', monospace",
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    border: '4px solid #000',
+                    textAlign: 'center'
+                  }}
+                >
+                  PAYMENTS INTERFACE
+                </a>
+              </div>
+            </div>
+
             <div style={{ border: '4px solid #000', padding: 32, background: '#fff', boxShadow: '8px 8px 0px #000' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                 <h2 style={{ fontFamily: "'Space Mono', monospace", fontSize: '1.25rem', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>
