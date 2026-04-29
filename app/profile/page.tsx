@@ -7,21 +7,41 @@ import type { CardNavItem } from '../components/CardNav';
 const navItems: CardNavItem[] = [
   {
     label: 'DASHBOARD',
-    bgColor: '#000000',
-    textColor: '#CCFF00',
+    bgColor: 'var(--d-black)',
+    textColor: 'var(--d-volt)',
     links: [
       { label: 'OVERVIEW', href: '/dashboard', ariaLabel: 'Dashboard Overview' },
       { label: 'TRANSACTIONS', href: '/dashboard', ariaLabel: 'All Transactions' },
     ],
   },
   {
-    label: 'SETTINGS',
-    bgColor: '#121212',
-    textColor: '#FFFFFF',
+    label: 'WEB3',
+    bgColor: 'var(--d-dark)',
+    textColor: 'var(--d-white)',
     links: [
-      { label: 'PROFILE', href: '/profile', ariaLabel: 'User Profile' },
+      { label: 'ZAAP BUNDLER', href: '/zaap', ariaLabel: 'Bundle Transactions' },
+      { label: 'AML STATUS', href: '/zaap', ariaLabel: 'AML Verification' },
+      { label: 'PAYMASTER', href: '/zaap', ariaLabel: 'Paymaster Config' },
+      { label: 'KYC ORCHESTRATOR', href: '/kyc', ariaLabel: 'Identity Orchestrator' },
+    ],
+  },
+  {
+    label: 'SETTINGS',
+    bgColor: 'var(--bg-secondary)',
+    textColor: 'var(--d-volt)',
+    links: [
+      { label: 'API KEYS', href: '/dashboard', ariaLabel: 'Manage API Keys' },
       { label: 'WALLET', href: '/dashboard', ariaLabel: 'Wallet Settings' },
       { label: 'LOGOUT', href: '/logout', ariaLabel: 'Logout' },
+    ],
+  },
+  {
+    label: 'YOUR ACCOUNT',
+    bgColor: 'var(--bg-secondary)',
+    textColor: 'var(--text-primary)',
+    links: [
+      { label: 'PROFILE', href: '/profile', ariaLabel: 'View Profile' },
+      { label: 'FIX YOUR ACCOUNT', href: '/profile', ariaLabel: 'Fix Your Account' },
     ],
   },
 ];
@@ -118,10 +138,10 @@ export default function ProfilePage() {
       <CardNav
         brandName="FIXMYPAYMENTS"
         items={navItems}
-        baseColor="#FFFFFF"
-        menuColor="#000000"
-        buttonBgColor="#CCFF00"
-        buttonTextColor="#000000"
+        baseColor="var(--bg-primary)"
+        menuColor="var(--text-primary)"
+        buttonBgColor="var(--d-volt)"
+        buttonTextColor="var(--d-black)"
         buttonText="DASHBOARD"
         buttonHref="/dashboard"
         variant="disruptor"
@@ -134,11 +154,11 @@ export default function ProfilePage() {
           top: 76,
           left: '50%',
           transform: `translateX(-50%) translateY(${toast.visible ? 0 : -20}px)`,
-          background: '#000000',
-          color: '#CCFF00',
+          background: 'var(--d-black)',
+          color: 'var(--d-volt)',
           padding: '10px 24px',
-          border: '4px solid #CCFF00',
-          boxShadow: '4px 4px 0px #CCFF00',
+          border: '4px solid var(--d-volt)',
+          boxShadow: 'var(--d-shadow-sm)',
           fontFamily: "'Space Mono', monospace",
           fontSize: '0.75rem',
           fontWeight: 700,
@@ -157,13 +177,13 @@ export default function ProfilePage() {
           <div
             style={{
               marginBottom: 24,
-              border: '3px solid #ff0000',
-              background: '#fff1f2',
+              border: '3px solid var(--d-volt)',
+              background: 'var(--bg-secondary)',
               padding: '12px 16px',
               fontFamily: "'Space Mono', monospace",
               fontSize: '0.75rem',
               fontWeight: 700,
-              color: '#b91c1c',
+              color: 'var(--text-primary)',
               textTransform: 'uppercase',
             }}
           >
@@ -172,24 +192,24 @@ export default function ProfilePage() {
         )}
 
         {loading ? (
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '1rem', textAlign: 'center', marginTop: 40 }}>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '1rem', textAlign: 'center', marginTop: 40, color: 'var(--text-primary)' }}>
             LOADING PROFILE...
           </div>
         ) : (
           <>
-            <div style={{ marginBottom: 40, border: '4px solid #000', padding: 32, background: '#f5f5f5', boxShadow: '8px 8px 0px #000' }}>
-              <h1 style={{ fontFamily: "'Space Mono', monospace", fontSize: '1.5rem', fontWeight: 700, margin: '0 0 16px 0', textTransform: 'uppercase' }}>
+            <div style={{ marginBottom: 40, border: 'var(--d-border)', padding: 32, background: 'var(--bg-secondary)', boxShadow: 'var(--d-shadow-lg)' }}>
+              <h1 style={{ fontFamily: "'Space Mono', monospace", fontSize: '1.5rem', fontWeight: 700, margin: '0 0 16px 0', textTransform: 'uppercase', color: 'var(--text-primary)' }}>
                 USER PROFILE
               </h1>
-              <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1rem', color: '#333' }}>
+              <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '1rem', color: 'var(--text-secondary)' }}>
                 <p style={{ margin: '0 0 8px 0' }}><strong>EMAIL:</strong> {profile?.email || 'N/A'}</p>
                 <p style={{ margin: '0 0 8px 0' }}><strong>LIFETIME TRANSACTIONS:</strong> {stats?.totalTransactions || 0}</p>
                 <p style={{ margin: 0 }}><strong>LIFETIME SPENT:</strong> ₹{(stats?.lifetimeSpent || 0).toLocaleString('en-IN')}</p>
               </div>
             </div>
 
-            <div style={{ marginBottom: 40, border: '4px solid #000', padding: 32, background: '#CCFF00', boxShadow: '8px 8px 0px #000' }}>
-              <h2 style={{ fontFamily: "'Space Mono', monospace", fontSize: '1.25rem', fontWeight: 700, margin: '0 0 16px 0', textTransform: 'uppercase' }}>
+            <div style={{ marginBottom: 40, border: 'var(--d-border)', padding: 32, background: 'var(--d-volt)', boxShadow: 'var(--d-shadow-lg)' }}>
+              <h2 style={{ fontFamily: "'Space Mono', monospace", fontSize: '1.25rem', fontWeight: 700, margin: '0 0 16px 0', textTransform: 'uppercase', color: 'var(--d-black)' }}>
                 QUICK ACTIONS
               </h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
@@ -199,14 +219,14 @@ export default function ProfilePage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    background: '#000',
-                    color: '#FFF',
+                    background: 'var(--d-black)',
+                    color: 'var(--d-white)',
                     padding: '16px',
                     textDecoration: 'none',
                     fontFamily: "'Space Mono', monospace",
                     fontWeight: 700,
                     textTransform: 'uppercase',
-                    border: '2px solid #000',
+                    border: '2px solid var(--d-black)',
                     textAlign: 'center'
                   }}
                 >
@@ -218,14 +238,14 @@ export default function ProfilePage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    background: '#FFF',
-                    color: '#000',
+                    background: 'var(--bg-primary)',
+                    color: 'var(--text-primary)',
                     padding: '16px',
                     textDecoration: 'none',
                     fontFamily: "'Space Mono', monospace",
                     fontWeight: 700,
                     textTransform: 'uppercase',
-                    border: '4px solid #000',
+                    border: 'var(--d-border)',
                     textAlign: 'center'
                   }}
                 >
@@ -234,17 +254,17 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div style={{ border: '4px solid #000', padding: 32, background: '#fff', boxShadow: '8px 8px 0px #000' }}>
+            <div style={{ border: 'var(--d-border)', padding: 32, background: 'var(--bg-secondary)', boxShadow: 'var(--d-shadow-lg)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                <h2 style={{ fontFamily: "'Space Mono', monospace", fontSize: '1.25rem', fontWeight: 700, margin: 0, textTransform: 'uppercase' }}>
+                <h2 style={{ fontFamily: "'Space Mono', monospace", fontSize: '1.25rem', fontWeight: 700, margin: 0, textTransform: 'uppercase', color: 'var(--text-primary)' }}>
                   BUDGET CONFIGURATION
                 </h2>
                 {!editBudget ? (
                   <button
                     onClick={() => setEditBudget(true)}
                     style={{
-                      background: '#000',
-                      color: '#CCFF00',
+                      background: 'var(--d-black)',
+                      color: 'var(--d-volt)',
                       border: 'none',
                       padding: '8px 16px',
                       fontFamily: "'Space Mono', monospace",
@@ -258,12 +278,12 @@ export default function ProfilePage() {
                   </button>
                 ) : (
                   <div style={{ display: 'flex', gap: 8 }}>
-                    <button
+                     <button
                       onClick={() => setEditBudget(false)}
                       style={{
-                        background: '#ccc',
-                        color: '#000',
-                        border: 'none',
+                        background: 'var(--bg-primary)',
+                        color: 'var(--text-muted)',
+                        border: 'var(--d-border-thin)',
                         padding: '8px 16px',
                         fontFamily: "'Space Mono', monospace",
                         fontSize: '0.75rem',
@@ -277,9 +297,9 @@ export default function ProfilePage() {
                     <button
                       onClick={handleSaveBudget}
                       style={{
-                        background: '#000',
-                        color: '#CCFF00',
-                        border: 'none',
+                        background: 'var(--d-black)',
+                        color: 'var(--d-volt)',
+                        border: 'var(--d-border-thin)',
                         padding: '8px 16px',
                         fontFamily: "'Space Mono', monospace",
                         fontSize: '0.75rem',
@@ -296,8 +316,8 @@ export default function ProfilePage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 24 }}>
                 {Object.entries(budget).map(([category, limit]) => (
-                  <div key={category} style={{ borderBottom: '2px solid #eee', paddingBottom: 16 }}>
-                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.875rem', fontWeight: 700, color: '#555', marginBottom: 8, textTransform: 'uppercase' }}>
+                  <div key={category} style={{ borderBottom: '2px solid var(--text-muted)', paddingBottom: 16, opacity: 0.8 }}>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 8, textTransform: 'uppercase' }}>
                       {category}
                     </div>
                     {editBudget ? (
@@ -309,8 +329,9 @@ export default function ProfilePage() {
                           onChange={(e) => setNewBudget(prev => ({ ...prev, [category]: e.target.value }))}
                           style={{
                             width: '100%',
-                            background: '#f9f9f9',
-                            border: '2px solid #000',
+                            background: 'var(--bg-primary)',
+                            border: '2px solid var(--d-black)',
+                            color: 'var(--text-primary)',
                             padding: '8px 12px',
                             fontFamily: "'Space Mono', monospace",
                             fontSize: '1.25rem',
@@ -320,7 +341,7 @@ export default function ProfilePage() {
                         />
                       </div>
                     ) : (
-                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '1.5rem', fontWeight: 700, color: '#000' }}>
+                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                         ₹{Number(limit).toLocaleString('en-IN')}
                       </div>
                     )}
@@ -334,7 +355,7 @@ export default function ProfilePage() {
 
       <footer
         style={{
-          borderTop: '4px solid #000000',
+          borderTop: 'var(--d-border)',
           padding: '20px 24px',
           display: 'flex',
           alignItems: 'center',
@@ -342,7 +363,7 @@ export default function ProfilePage() {
           gap: 12,
           fontFamily: "'Space Mono', monospace",
           fontSize: '0.6875rem',
-          color: '#475569',
+          color: 'var(--text-muted)',
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
         }}

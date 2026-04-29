@@ -34,15 +34,17 @@ interface CardNavProps {
   variant?: 'disruptor' | 'yellow-saas';
 }
 
+import ThemeToggle from './ThemeToggle';
+
 export default function CardNav({
   brandName = 'FixMyPayments',
   items,
   className = '',
   ease = 'power3.out',
-  baseColor = '#FFFFFF',
-  menuColor = '#000000',
-  buttonBgColor = '#CCFF00',
-  buttonTextColor = '#000000',
+  baseColor = 'var(--bg-primary)',
+  menuColor = 'var(--text-primary)',
+  buttonBgColor = 'var(--d-volt)',
+  buttonTextColor = 'var(--d-black)',
   buttonText = 'LAUNCH APP',
   buttonHref = '/dashboard',
   variant = 'disruptor',
@@ -56,8 +58,8 @@ export default function CardNav({
   const isDisruptor = variant === 'disruptor';
   const borderWidth = isDisruptor ? '4px' : '2px';
   const shadowStyle = isDisruptor
-    ? '8px 8px 0px #000000'
-    : '8px 8px 0px #000000';
+    ? 'var(--d-shadow-lg)'
+    : 'var(--d-shadow-lg)';
   const fontFamily = isDisruptor
     ? "'Space Mono', monospace"
     : "'Plus Jakarta Sans', sans-serif";
@@ -160,7 +162,7 @@ export default function CardNav({
         height: 60,
         overflow: 'hidden',
         background: baseColor,
-        borderBottom: `${borderWidth} solid #000000`,
+        borderBottom: `${borderWidth} solid var(--d-black)`,
         boxShadow: isOpen ? shadowStyle : 'none',
         transition: 'box-shadow 0.3s ease',
       }}
@@ -181,14 +183,14 @@ export default function CardNav({
             style={{
               width: 32,
               height: 32,
-              background: isDisruptor ? '#CCFF00' : '#000000',
-              border: `${borderWidth} solid #000000`,
+              background: isDisruptor ? 'var(--d-volt)' : 'var(--d-black)',
+              border: `${borderWidth} solid var(--d-black)`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontFamily: "'Ranchers', cursive",
               fontSize: 14,
-              color: isDisruptor ? '#000000' : '#FFFFFF',
+              color: isDisruptor ? 'var(--d-black)' : 'var(--d-white)',
               fontWeight: 700,
             }}
           >
@@ -219,8 +221,8 @@ export default function CardNav({
               padding: '8px 20px',
               background: buttonBgColor,
               color: buttonTextColor,
-              border: `${borderWidth} solid #000000`,
-              boxShadow: '4px 4px 0px #000000',
+              border: `${borderWidth} solid var(--d-black)`,
+              boxShadow: '4px 4px 0px var(--d-black)',
               fontFamily: fontFamily,
               fontSize: '0.75rem',
               fontWeight: 700,
@@ -232,15 +234,17 @@ export default function CardNav({
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translate(2px, 2px)';
-              e.currentTarget.style.boxShadow = '2px 2px 0px #000000';
+              e.currentTarget.style.boxShadow = '2px 2px 0px var(--d-black)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translate(0, 0)';
-              e.currentTarget.style.boxShadow = '4px 4px 0px #000000';
+              e.currentTarget.style.boxShadow = '4px 4px 0px var(--d-black)';
             }}
           >
             {buttonText}
           </Link>
+
+          <ThemeToggle />
 
           <button
             onClick={toggleMenu}
@@ -279,8 +283,8 @@ export default function CardNav({
             className="cardnav-card"
             style={{
               background: item.bgColor,
-              border: `${borderWidth} solid #000000`,
-              boxShadow: '4px 4px 0px #000000',
+              border: `${borderWidth} solid var(--d-black)`,
+              boxShadow: '4px 4px 0px var(--d-black)',
               padding: 20,
               opacity: 0,
             }}

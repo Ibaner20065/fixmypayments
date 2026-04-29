@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Routes that require authentication
-const protectedRoutes = ['/dashboard', '/profile', '/zaap'];
+const protectedRoutes = ['/dashboard', '/profile', '/zaap', '/kyc'];
 const publicRoutes = ['/', '/auth'];
 
 export function proxy(request: NextRequest) {

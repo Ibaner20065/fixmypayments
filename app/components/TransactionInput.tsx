@@ -47,14 +47,14 @@ export default function TransactionInput({ onAdd, isLoading, budget, spentByCate
             position: 'absolute',
             top: -42,
             left: 0,
-            background: budgetExceeded ? '#ff0000' : '#CCFF00',
-            color: budgetExceeded ? '#FFFFFF' : '#000000',
+            background: budgetExceeded ? '#ff0000' : 'var(--d-volt)',
+            color: budgetExceeded ? '#FFFFFF' : 'var(--d-black)',
             padding: '8px 16px',
-            border: '4px solid #000000',
+            border: 'var(--d-border)',
             fontFamily: "'Space Mono', monospace",
             fontSize: '0.75rem',
             fontWeight: 700,
-            boxShadow: '4px 4px 0px #000000',
+            boxShadow: 'var(--d-shadow-sm)',
             display: 'flex',
             gap: 12,
             alignItems: 'center',
@@ -79,9 +79,9 @@ export default function TransactionInput({ onAdd, isLoading, budget, spentByCate
       <div
         style={{
           display: 'flex',
-        border: '4px solid #000000',
-        boxShadow: '8px 8px 0px #000000',
-        background: '#FFFFFF',
+        border: 'var(--d-border)',
+        boxShadow: 'var(--d-shadow-lg)',
+        background: 'var(--bg-secondary)',
         overflow: 'hidden',
       }}
     >
@@ -102,13 +102,13 @@ export default function TransactionInput({ onAdd, isLoading, budget, spentByCate
           fontFamily: "'Space Mono', monospace",
           fontSize: '0.875rem',
           fontWeight: 400,
-          color: '#000',
+          color: 'var(--text-primary)',
           background: 'transparent',
           letterSpacing: '0.02em',
         }}
       />
       {/* Vertical divider */}
-      <div style={{ width: 4, background: '#000000', alignSelf: 'stretch' }} />
+      <div style={{ width: 4, background: 'var(--d-black)', alignSelf: 'stretch' }} />
       <button
         onClick={handleSubmit}
         disabled={isLoading || !value.trim()}
@@ -116,8 +116,8 @@ export default function TransactionInput({ onAdd, isLoading, budget, spentByCate
         style={{
           padding: '14px 28px',
           border: 'none',
-          background: '#000000',
-          color: '#FFFFFF',
+          background: 'var(--d-black)',
+          color: 'var(--d-white)',
           fontFamily: "'Ranchers', cursive",
           fontSize: '1rem',
           cursor: value.trim() && !isLoading ? 'pointer' : 'not-allowed',
@@ -129,13 +129,13 @@ export default function TransactionInput({ onAdd, isLoading, budget, spentByCate
         }}
         onMouseEnter={(e) => {
           if (value.trim() && !isLoading) {
-            e.currentTarget.style.background = '#FFFFFF';
-            e.currentTarget.style.color = '#000000';
+            e.currentTarget.style.background = 'var(--d-volt)';
+            e.currentTarget.style.color = 'var(--d-black)';
           }
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = '#000000';
-          e.currentTarget.style.color = '#FFFFFF';
+          e.currentTarget.style.background = 'var(--d-black)';
+          e.currentTarget.style.color = 'var(--d-white)';
         }}
       >
         {isLoading ? '...' : 'ADD →'}

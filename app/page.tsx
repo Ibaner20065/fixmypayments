@@ -10,32 +10,33 @@ import { ArrowRight, Check, X, Zap, TrendingUp, Shield, ChevronRight, Star } fro
 const navItems: CardNavItem[] = [
   {
     label: 'PRODUCT',
-    bgColor: '#ffe17c',
-    textColor: '#000000',
+    bgColor: 'var(--d-volt)',
+    textColor: 'var(--d-black)',
     links: [
-      { label: 'Dashboard', href: '/dashboard', ariaLabel: 'View Dashboard' },
-      { label: 'AI Classifier', href: '/dashboard', ariaLabel: 'AI Classification' },
-      { label: 'Analytics', href: '/dashboard', ariaLabel: 'Spending Analytics' },
+      { label: 'DASHBOARD', href: '/dashboard', ariaLabel: 'View Dashboard' },
+      { label: 'AI CLASSIFIER', href: '/dashboard', ariaLabel: 'AI Classification' },
+      { label: 'ANALYTICS', href: '/dashboard', ariaLabel: 'Spending Analytics' },
     ],
   },
   {
     label: 'WEB3',
-    bgColor: '#b7c6c2',
-    textColor: '#000000',
+    bgColor: 'var(--d-dark)',
+    textColor: 'var(--d-white)',
     links: [
-      { label: 'ZAAP Bundler', href: '/zaap', ariaLabel: 'Bundle Transactions' },
-      { label: 'Paymaster', href: '/zaap', ariaLabel: 'Paymaster Config' },
-      { label: 'AML Status', href: '/zaap', ariaLabel: 'AML Verification' },
+      { label: 'ZAAP BUNDLER', href: '/zaap', ariaLabel: 'Bundle Transactions' },
+      { label: 'PAYMASTER', href: '/zaap', ariaLabel: 'Paymaster Config' },
+      { label: 'AML STATUS', href: '/zaap', ariaLabel: 'AML Verification' },
+      { label: 'KYC ORCHESTRATOR', href: '/kyc', ariaLabel: 'Identity Orchestrator' },
     ],
   },
   {
     label: 'COMPANY',
-    bgColor: '#171e19',
-    textColor: '#FFFFFF',
+    bgColor: 'var(--bg-secondary)',
+    textColor: 'var(--d-volt)',
     links: [
-      { label: 'About', href: '/', ariaLabel: 'About Us' },
-      { label: 'Blog', href: '/', ariaLabel: 'Blog' },
-      { label: 'Contact', href: '/', ariaLabel: 'Contact Us' },
+      { label: 'ABOUT', href: '/', ariaLabel: 'About Us' },
+      { label: 'BLOG', href: '/', ariaLabel: 'Blog' },
+      { label: 'CONTACT', href: '/', ariaLabel: 'Contact Us' },
     ],
   },
 ];
@@ -49,7 +50,8 @@ const features = [
 const steps = [
   { num: '01', title: 'CONNECT', desc: 'Link your wallet or start typing transactions in natural language.' },
   { num: '02', title: 'CLASSIFY', desc: 'AI categorizes every transaction across 8 spending categories instantly.' },
-  { num: '03', title: 'CONTROL', desc: 'Bundle DeFi operations gaslessly. Track, swap, and transfer in one click.' },
+  { num: '03', title: 'VERIFY', desc: 'Privacy-first Identity Orchestration verifies your profile without exposing raw data.' },
+  { num: '04', title: 'CONTROL', desc: 'Bundle DeFi operations gaslessly. Track, swap, and transfer in one click.' },
 ];
 
 const personas = [
@@ -69,27 +71,27 @@ const marqueeNames = ['ZKSYNC', 'AAVE', 'UNISWAP', 'MUTE.IO', 'PUREFI', 'RECHART
 export default function LandingPage() {
   const router = useRouter();
   return (
-    <div style={{ background: '#ffe17c', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--bg-primary)', minHeight: '100vh' }}>
       {/* ═══ NAV ═══ */}
       <CardNav
-        brandName="FixMyPayments"
+        brandName="FIXMYPAYMENTS"
         items={navItems}
-        baseColor="#ffe17c"
-        menuColor="#000000"
-        buttonBgColor="#000000"
-        buttonTextColor="#FFFFFF"
+        baseColor="var(--bg-primary)"
+        menuColor="var(--text-primary)"
+        buttonBgColor="var(--d-volt)"
+        buttonTextColor="var(--d-black)"
         buttonText="START FREE"
         buttonHref="/auth"
-        variant="yellow-saas"
+        variant="disruptor"
       />
 
       {/* ═══ HERO ═══ */}
       <section
         className="y-dot-pattern"
         style={{
-          background: '#ffe17c',
+          background: 'var(--bg-primary)',
           padding: '80px 24px 60px',
-          borderBottom: '2px solid #000',
+          borderBottom: 'var(--d-border)',
         }}
       >
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
@@ -108,7 +110,7 @@ export default function LandingPage() {
               <br />
               SHIP FASTER.
             </h1>
-            <p style={{ fontSize: '1.125rem', color: '#333', marginBottom: 32, maxWidth: 480, lineHeight: 1.7 }}>
+            <p style={{ fontSize: '1.125rem', color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 480, lineHeight: 1.7 }}>
               AI-powered expense tracking meets gasless DeFi. Type a transaction, see it classified instantly, and bundle multi-step DeFi into one click.
             </p>
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
@@ -120,8 +122,8 @@ export default function LandingPage() {
                   localStorage.setItem('fb-id-token', 'demo-token');
                   router.push('/dashboard');
                 }}
-                className="y-btn-secondary"
-                style={{ background: '#000', color: '#fff', cursor: 'pointer' }}
+               className="y-btn-secondary"
+                style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', cursor: 'pointer', border: 'var(--d-border-thin)' }}
               >
                 DEMO LOGIN
               </button>
@@ -129,11 +131,11 @@ export default function LandingPage() {
           </div>
 
           {/* Right — Browser Mockup */}
-          <div
+           <div
             style={{
-              background: '#FFFFFF',
-              border: '2px solid #000',
-              boxShadow: '12px 12px 0px 0px #000000',
+              background: 'var(--bg-secondary)',
+              border: 'var(--d-border)',
+              boxShadow: 'var(--d-shadow-lg)',
               overflow: 'hidden',
             }}
           >
@@ -153,20 +155,20 @@ export default function LandingPage() {
             </div>
             {/* Browser content */}
             <div style={{ padding: 20 }}>
-              <div style={{ background: '#b7c6c2', border: '2px solid #000', padding: 16, marginBottom: 12 }}>
+               <div style={{ background: 'var(--d-volt)', border: 'var(--d-border-thin)', padding: 16, marginBottom: 12, color: 'var(--d-black)' }}>
                 <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
                   TOTAL SPENDING
                 </div>
                 <div style={{ fontFamily: "'Ranchers', cursive", fontSize: '2rem' }}>₹12,450</div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div style={{ background: '#171e19', color: '#fff', border: '2px solid #000', padding: 12 }}>
+                <div style={{ background: 'var(--d-black)', color: 'var(--d-white)', border: 'var(--d-border-thin)', padding: 12 }}>
                   <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.625rem', textTransform: 'uppercase', opacity: 0.7 }}>FOOD</div>
-                  <div style={{ fontFamily: "'Ranchers', cursive", fontSize: '1.25rem', color: '#CCFF00' }}>₹4,200</div>
+                  <div style={{ fontFamily: "'Ranchers', cursive", fontSize: '1.25rem', color: 'var(--d-volt)' }}>₹4,200</div>
                 </div>
-                <div style={{ background: '#171e19', color: '#fff', border: '2px solid #000', padding: 12 }}>
+                <div style={{ background: 'var(--d-black)', color: 'var(--d-white)', border: 'var(--d-border-thin)', padding: 12 }}>
                   <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.625rem', textTransform: 'uppercase', opacity: 0.7 }}>TRANSPORT</div>
-                  <div style={{ fontFamily: "'Ranchers', cursive", fontSize: '1.25rem', color: '#CCFF00' }}>₹2,100</div>
+                  <div style={{ fontFamily: "'Ranchers', cursive", fontSize: '1.25rem', color: 'var(--d-volt)' }}>₹2,100</div>
                 </div>
               </div>
             </div>
@@ -184,10 +186,10 @@ export default function LandingPage() {
       </section>
 
       {/* ═══ SOCIAL PROOF MARQUEE ═══ */}
-      <section
+       <section
         style={{
-          background: '#171e19',
-          borderBottom: '2px solid #000',
+          background: 'var(--d-black)',
+          borderBottom: 'var(--d-border)',
           padding: '16px 0',
           overflow: 'hidden',
         }}
@@ -198,9 +200,9 @@ export default function LandingPage() {
               key={i}
               style={{
                 fontFamily: "'Cabinet Grotesk', sans-serif",
-                fontSize: '1rem',
+                 fontSize: '1rem',
                 fontWeight: 800,
-                color: '#b7c6c2',
+                color: 'var(--text-muted)',
                 opacity: 0.5,
                 padding: '0 40px',
                 whiteSpace: 'nowrap',
@@ -212,44 +214,45 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══ PROBLEM vs SOLUTION ═══ */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px', borderBottom: '2px solid #000' }}>
+       {/* ═══ PROBLEM vs SOLUTION ═══ */}
+      <section style={{ background: 'var(--bg-primary)', padding: '80px 24px', borderBottom: 'var(--d-border)' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
           {/* Problem */}
-          <div
+           <div
             style={{
-              background: '#f4f4f5',
-              border: '2px dashed #999',
+              background: 'var(--bg-secondary)',
+              border: '2px dashed var(--text-muted)',
               padding: 32,
               opacity: 0.7,
             }}
           >
-            <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: '1.5rem', fontWeight: 800, marginBottom: 20 }}>
+             <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: '1.5rem', fontWeight: 800, marginBottom: 20, color: 'var(--text-primary)' }}>
               THE OLD WAY
             </div>
             {['Manual expense spreadsheets', 'Multiple DeFi transactions = multiple gas fees', 'No AML verification', 'Complex multi-step forms'].map((t, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, fontSize: '0.9375rem' }}>
-                <X size={16} style={{ color: '#dc2626', flexShrink: 0 }} />
+               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, fontSize: '0.9375rem', color: 'var(--text-secondary)' }}>
+                <X size={16} style={{ color: '#ff4444', flexShrink: 0 }} />
                 {t}
               </div>
             ))}
           </div>
 
           {/* Solution */}
-          <div
+           <div
             style={{
-              background: '#ffe17c',
-              border: '2px solid #000',
-              boxShadow: '8px 8px 0px 0px #000000',
+              background: 'var(--d-volt)',
+              border: 'var(--d-border)',
+              boxShadow: 'var(--d-shadow-lg)',
               padding: 32,
+              color: 'var(--d-black)',
             }}
           >
             <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: '1.5rem', fontWeight: 800, marginBottom: 20 }}>
               THE BETTER WAY
             </div>
-            {['Type "Swiggy 300" → auto-classified', 'ZAAP bundles 3 steps into 1 tx', 'PureFi AML at contract level', 'Single text input, zero friction'].map((t, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, fontSize: '0.9375rem', fontWeight: 500 }}>
-                <Check size={16} style={{ color: '#16a34a', flexShrink: 0 }} />
+             {['Type "Swiggy 300" → auto-classified', 'ZAAP bundles 3 steps into 1 tx', 'PureFi AML at contract level', 'Single text input, zero friction'].map((t, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, fontSize: '0.9375rem', fontWeight: 500, color: 'var(--d-black)' }}>
+                <Check size={16} style={{ color: '#008800', flexShrink: 0 }} />
                 {t}
               </div>
             ))}
@@ -264,14 +267,14 @@ export default function LandingPage() {
       </section>
 
       {/* ═══ FEATURES GRID ═══ */}
-      <section
+       <section
         id="features"
         className="y-dot-pattern"
         style={{
-          background: '#ffe17c',
+          background: 'var(--bg-primary)',
           padding: '80px 24px',
-          borderTop: '2px solid #000',
-          borderBottom: '2px solid #000',
+          borderTop: 'var(--d-border)',
+          borderBottom: 'var(--d-border)',
         }}
       >
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
@@ -279,53 +282,58 @@ export default function LandingPage() {
             style={{
               fontFamily: "'Space Mono', monospace",
               fontSize: '0.6875rem',
-              textTransform: 'uppercase',
+               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               marginBottom: 8,
+              color: 'var(--text-secondary)',
             }}
           >
             CAPABILITIES
           </div>
-          <h2 className="y-heading" style={{ fontSize: '2.5rem', marginBottom: 48 }}>
+          <h2 className="y-heading" style={{ fontSize: '2.5rem', marginBottom: 48, color: 'var(--text-primary)' }}>
             EVERYTHING YOU NEED
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
             {features.map((f, i) => (
               <div
                 key={i}
-                className="y-card"
+                 className="y-card"
                 style={{
                   transition: 'transform 0.15s ease, box-shadow 0.15s ease',
                   cursor: 'default',
+                  background: 'var(--bg-secondary)',
+                  color: 'var(--text-primary)',
+                  border: 'var(--d-border)',
+                  boxShadow: 'var(--d-shadow-sm)',
                 }}
-                onMouseEnter={(e) => {
+                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-4px)';
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = '6px 6px 0px 0px #000000';
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--d-shadow-lg)';
                 }}
-                onMouseLeave={(e) => {
+                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
-                  (e.currentTarget as HTMLDivElement).style.boxShadow = '4px 4px 0px 0px #000000';
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = 'var(--d-shadow-sm)';
                 }}
               >
                 <div
-                  style={{
-                    width: 48,
-                    height: 48,
-                    background: '#b7c6c2',
-                    border: '2px solid #000',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 16,
-                    transition: 'background 0.2s ease',
-                  }}
-                >
-                  {f.icon}
-                </div>
-                <h3 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: '1.25rem', fontWeight: 800, marginBottom: 8 }}>
+                   style={{
+                     width: 48,
+                     height: 48,
+                     background: 'var(--bg-secondary)',
+                     border: 'var(--d-border-thin)',
+                     display: 'flex',
+                     alignItems: 'center',
+                     justifyContent: 'center',
+                     marginBottom: 16,
+                     transition: 'background 0.2s ease',
+                   }}
+                 >
+                   {f.icon}
+                 </div>
+                 <h3 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: '1.25rem', fontWeight: 800, marginBottom: 8, color: 'var(--text-primary)' }}>
                   {f.title}
                 </h3>
-                <p style={{ fontSize: '0.875rem', color: '#444', lineHeight: 1.6 }}>{f.desc}</p>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{f.desc}</p>
               </div>
             ))}
           </div>
@@ -338,65 +346,65 @@ export default function LandingPage() {
         `}</style>
       </section>
 
-      {/* ═══ HOW IT WORKS (DARK) ═══ */}
-      <section style={{ background: '#171e19', padding: '80px 24px', color: '#fff' }}>
+       {/* ═══ HOW IT WORKS (DARK) ═══ */}
+      <section style={{ background: 'var(--d-black)', padding: '80px 24px', color: 'var(--d-white)' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', textAlign: 'center' }}>
-          <h2 className="y-heading" style={{ color: '#fff', fontSize: '2.5rem', marginBottom: 60 }}>
+         <h2 className="y-heading" style={{ color: 'var(--d-white)', fontSize: '2.5rem', marginBottom: 60 }}>
             HOW IT WORKS
           </h2>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: 48, flexWrap: 'wrap' }}>
             {steps.map((s, i) => (
               <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 240 }}>
                 <div
-                  style={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: '50%',
-                    border: `3px solid ${i === 0 ? '#b7c6c2' : i === 1 ? '#ffe17c' : '#FFFFFF'}`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontFamily: "'Ranchers', cursive",
-                    fontSize: '1.5rem',
-                    marginBottom: 20,
-                    boxShadow: `0 0 20px ${i === 0 ? '#b7c6c240' : i === 1 ? '#ffe17c40' : '#FFFFFF40'}`,
-                  }}
-                >
-                  {s.num}
-                </div>
-                <h3 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: '1.25rem', fontWeight: 800, marginBottom: 8 }}>
+                   style={{
+                     width: 80,
+                     height: 80,
+                     borderRadius: '50%',
+                     border: '3px solid var(--d-volt)',
+                     display: 'flex',
+                     alignItems: 'center',
+                     justifyContent: 'center',
+                     fontFamily: "'Ranchers', cursive",
+                     fontSize: '1.5rem',
+                     marginBottom: 20,
+                     boxShadow: 'var(--d-shadow-volt)',
+                   }}
+                 >
+                   {s.num}
+                 </div>
+                 <h3 style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontSize: '1.25rem', fontWeight: 800, marginBottom: 8, color: 'var(--d-white)' }}>
                   {s.title}
                 </h3>
-                <p style={{ fontSize: '0.875rem', color: '#b7c6c2', lineHeight: 1.6 }}>{s.desc}</p>
+                <p style={{ fontSize: '0.875rem', color: 'var(--d-volt)', lineHeight: 1.6, opacity: 0.8 }}>{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══ PERSONAS / BENTO ═══ */}
-      <section style={{ background: '#FFFFFF', padding: '80px 24px', borderTop: '2px solid #000', borderBottom: '2px solid #000' }}>
+       {/* ═══ PERSONAS / BENTO ═══ */}
+      <section style={{ background: 'var(--bg-primary)', padding: '80px 24px', borderTop: 'var(--d-border)', borderBottom: 'var(--d-border)' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <h2 className="y-heading" style={{ fontSize: '2.5rem', marginBottom: 48, textAlign: 'center' }}>
+           <h2 className="y-heading" style={{ fontSize: '2.5rem', marginBottom: 48, textAlign: 'center', color: 'var(--text-primary)' }}>
             BUILT FOR YOU
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
             {personas.map((p, i) => (
               <div
                 key={i}
-                style={{
-                  background: p.bg,
-                  color: p.color,
-                  border: '2px solid #000',
-                  boxShadow: p.featured ? '8px 8px 0px 0px #000000' : '4px 4px 0px 0px #000000',
+                 style={{
+                  background: p.bg === '#272727' ? 'var(--d-dark)' : p.bg,
+                  color: p.color === '#fff' ? 'var(--d-white)' : p.color,
+                  border: 'var(--d-border)',
+                  boxShadow: p.featured ? 'var(--d-shadow-lg)' : 'var(--d-shadow-sm)',
                   padding: 28,
                 }}
               >
-                <span
+                 <span
                   style={{
                     display: 'inline-block',
-                    background: '#FFFFFF',
-                    border: '2px solid #000',
+                    background: 'var(--bg-primary)',
+                    border: 'var(--d-border-thin)',
                     padding: '4px 12px',
                     fontSize: '0.625rem',
                     fontFamily: "'Space Mono', monospace",
@@ -404,7 +412,7 @@ export default function LandingPage() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                     marginBottom: 16,
-                    color: '#000',
+                    color: 'var(--text-primary)',
                   }}
                 >
                   {p.type}
@@ -425,20 +433,20 @@ export default function LandingPage() {
         `}</style>
       </section>
 
-      {/* ═══ TESTIMONIALS ═══ */}
-      <section style={{ background: '#b7c6c2', padding: '80px 24px', borderBottom: '2px solid #000' }}>
+       {/* ═══ TESTIMONIALS ═══ */}
+      <section style={{ background: 'var(--bg-secondary)', padding: '80px 24px', borderBottom: 'var(--d-border)' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <h2 className="y-heading" style={{ fontSize: '2.5rem', marginBottom: 48, textAlign: 'center' }}>
+           <h2 className="y-heading" style={{ fontSize: '2.5rem', marginBottom: 48, textAlign: 'center', color: 'var(--text-primary)' }}>
             WHAT THEY SAY
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
             {testimonials.map((t, i) => (
               <div
                 key={i}
-                style={{
-                  background: '#FFFFFF',
-                  border: '2px solid #000',
-                  boxShadow: '4px 4px 0px 0px #000000',
+                 style={{
+                  background: 'var(--bg-primary)',
+                  border: 'var(--d-border)',
+                  boxShadow: 'var(--d-shadow-sm)',
                   padding: 24,
                   borderRadius: '2px 24px 2px 24px',
                 }}
@@ -448,10 +456,10 @@ export default function LandingPage() {
                     <Star key={j} size={16} fill="#febc2e" color="#febc2e" />
                   ))}
                 </div>
-                <p style={{ fontSize: '0.9375rem', lineHeight: 1.7, marginBottom: 16 }}>"{t.text}"</p>
-                <div>
-                  <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: '0.875rem' }}>{t.name}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#666' }}>{t.role}</div>
+                 <p style={{ fontSize: '0.9375rem', lineHeight: 1.7, marginBottom: 16, color: 'var(--text-primary)' }}>"{t.text}"</p>
+                 <div>
+                  <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: '0.875rem', color: 'var(--text-primary)' }}>{t.name}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{t.role}</div>
                 </div>
               </div>
             ))}
@@ -466,19 +474,19 @@ export default function LandingPage() {
       </section>
 
       {/* ═══ FINAL CTA ═══ */}
-      <section
+       <section
         className="y-dot-pattern"
         style={{
-          background: '#ffe17c',
+          background: 'var(--bg-primary)',
           padding: '80px 24px',
           textAlign: 'center',
-          borderBottom: '2px solid #000',
+          borderBottom: 'var(--d-border)',
         }}
       >
-        <h2 className="y-heading" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', marginBottom: 24 }}>
+         <h2 className="y-heading" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', marginBottom: 24, color: 'var(--text-primary)' }}>
           READY TO TAKE CONTROL?
         </h2>
-        <p style={{ fontSize: '1.125rem', color: '#333', marginBottom: 32, maxWidth: 500, margin: '0 auto 32px' }}>
+         <p style={{ fontSize: '1.125rem', color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 500, margin: '0 auto 32px' }}>
           Start tracking expenses and bundling DeFi transactions in seconds. No setup required.
         </p>
         <Link href="/auth" className="y-btn-primary" style={{ fontSize: '1.125rem', padding: '16px 40px' }}>
@@ -486,19 +494,19 @@ export default function LandingPage() {
         </Link>
       </section>
 
-      {/* ═══ FOOTER ═══ */}
-      <footer style={{ background: '#171e19', color: '#b7c6c2', padding: '60px 24px 40px' }}>
+       {/* ═══ FOOTER ═══ */}
+      <footer style={{ background: 'var(--d-black)', color: 'var(--text-muted)', padding: '60px 24px 40px' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 40 }}>
           <div>
-            <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: '1.125rem', color: '#fff', marginBottom: 16 }}>
+             <div style={{ fontFamily: "'Cabinet Grotesk', sans-serif", fontWeight: 800, fontSize: '1.125rem', color: 'var(--d-white)', marginBottom: 16 }}>
               FixMyPayments
             </div>
-            <p style={{ fontSize: '0.8125rem', lineHeight: 1.7, opacity: 0.7 }}>
+             <p style={{ fontSize: '0.8125rem', lineHeight: 1.7, opacity: 0.7, color: 'var(--text-muted)' }}>
               AI-powered finance meets gasless DeFi on zkSync Era.
             </p>
           </div>
           <div>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#fff', marginBottom: 16 }}>
+             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--d-white)', marginBottom: 16 }}>
               PRODUCT
             </div>
             {['Dashboard', 'ZAAP Bundler', 'Analytics'].map((l) => (
@@ -506,7 +514,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#fff', marginBottom: 16 }}>
+             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--d-white)', marginBottom: 16 }}>
               WEB3
             </div>
             {['Paymaster', 'AML Verify', 'zkSync Era'].map((l) => (
@@ -514,18 +522,18 @@ export default function LandingPage() {
             ))}
           </div>
           <div>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#fff', marginBottom: 16 }}>
+             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--d-white)', marginBottom: 16 }}>
               CONNECT
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               {['X', 'GH', 'DC'].map((l) => (
                 <div
                   key={l}
-                  style={{
+                   style={{
                     width: 36,
                     height: 36,
-                    background: '#272727',
-                    border: '1px solid #444',
+                    background: 'var(--bg-secondary)',
+                    border: '1px solid var(--text-muted)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -533,18 +541,18 @@ export default function LandingPage() {
                     fontFamily: "'Space Mono', monospace",
                     fontWeight: 700,
                     cursor: 'pointer',
-                    transition: 'background 0.15s ease, border-color 0.15s ease, color 0.15s ease',
-                    color: '#b7c6c2',
+                     transition: 'background 0.15s ease, border-color 0.15s ease, color 0.15s ease',
+                    color: 'var(--text-muted)',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#ffe17c';
-                    e.currentTarget.style.color = '#000';
-                    e.currentTarget.style.borderColor = '#000';
+                     e.currentTarget.style.background = 'var(--d-volt)';
+                    e.currentTarget.style.color = 'var(--d-black)';
+                    e.currentTarget.style.borderColor = 'var(--d-black)';
                   }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#272727';
-                    e.currentTarget.style.color = '#b7c6c2';
-                    e.currentTarget.style.borderColor = '#444';
+                   onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--bg-secondary)';
+                    e.currentTarget.style.color = 'var(--text-muted)';
+                    e.currentTarget.style.borderColor = 'var(--text-muted)';
                   }}
                 >
                   {l}

@@ -8,9 +8,9 @@ export default function PaymasterWidget() {
   return (
     <div
       style={{
-        background: '#CCFF00',
-        border: '4px solid #000000',
-        boxShadow: '8px 8px 0px #000000',
+        background: 'var(--d-volt)',
+        border: 'var(--d-border)',
+        boxShadow: 'var(--d-shadow-lg)',
         padding: '24px',
         position: 'relative',
         overflow: 'hidden',
@@ -25,17 +25,17 @@ export default function PaymasterWidget() {
           pointerEvents: 'none',
         }}
       >
-        <Zap size={160} color="#000000" />
+        <Zap size={160} color="var(--d-black)" />
       </div>
 
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-          <ShieldCheck size={24} color="#000000" />
+           <ShieldCheck size={24} color="var(--d-black)" />
           <h3
             style={{
               fontFamily: "'Ranchers', cursive",
               fontSize: '1.5rem',
-              color: '#000000',
+               color: 'var(--d-black)',
               margin: 0,
               textTransform: 'uppercase',
               lineHeight: 1,
@@ -49,7 +49,7 @@ export default function PaymasterWidget() {
           style={{
             fontFamily: "'Plus Jakarta Sans', sans-serif",
             fontSize: '0.875rem',
-            color: '#000000',
+             color: 'var(--d-black)',
             marginBottom: 24,
             fontWeight: 600,
             maxWidth: '400px',
@@ -64,10 +64,10 @@ export default function PaymasterWidget() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 8,
-            background: '#000000',
-            color: '#CCFF00',
+             background: 'var(--d-black)',
+            color: 'var(--d-volt)',
             padding: '12px 24px',
-            border: '4px solid #000000',
+            border: 'var(--d-border-thin)',
             fontFamily: "'Space Mono', monospace",
             fontSize: '0.875rem',
             fontWeight: 700,

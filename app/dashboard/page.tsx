@@ -15,8 +15,8 @@ import type { CardNavItem } from '../components/CardNav';
 const navItems: CardNavItem[] = [
   {
     label: 'DASHBOARD',
-    bgColor: '#000000',
-    textColor: '#CCFF00',
+    bgColor: 'var(--d-black)',
+    textColor: 'var(--d-volt)',
     links: [
       { label: 'OVERVIEW', href: '/dashboard', ariaLabel: 'Dashboard Overview' },
       { label: 'TRANSACTIONS', href: '/dashboard', ariaLabel: 'All Transactions' },
@@ -25,8 +25,8 @@ const navItems: CardNavItem[] = [
   },
   {
     label: 'WEB3',
-    bgColor: '#121212',
-    textColor: '#FFFFFF',
+    bgColor: 'var(--d-dark)',
+    textColor: 'var(--d-white)',
     links: [
       { label: 'ZAAP BUNDLER', href: '/zaap', ariaLabel: 'Bundle Transactions' },
       { label: 'AML STATUS', href: '/zaap', ariaLabel: 'AML Verification' },
@@ -36,8 +36,8 @@ const navItems: CardNavItem[] = [
   },
   {
     label: 'SETTINGS',
-    bgColor: '#1a1a2e',
-    textColor: '#CCFF00',
+    bgColor: 'var(--bg-secondary)',
+    textColor: 'var(--d-volt)',
     links: [
       { label: 'API KEYS', href: '/dashboard', ariaLabel: 'Manage API Keys' },
       { label: 'WALLET', href: '/dashboard', ariaLabel: 'Wallet Settings' },
@@ -46,8 +46,8 @@ const navItems: CardNavItem[] = [
   },
   {
     label: 'YOUR ACCOUNT',
-    bgColor: '#f5f5f5',
-    textColor: '#000000',
+    bgColor: 'var(--bg-secondary)',
+    textColor: 'var(--text-primary)',
     links: [
       { label: 'PROFILE', href: '/profile', ariaLabel: 'View Profile' },
       { label: 'FIX YOUR ACCOUNT', href: '/profile', ariaLabel: 'Fix Your Account' },
@@ -254,10 +254,10 @@ export default function DashboardPage() {
       <CardNav
         brandName="FIXMYPAYMENTS"
         items={navItems}
-        baseColor="#FFFFFF"
-        menuColor="#000000"
-        buttonBgColor="#CCFF00"
-        buttonTextColor="#000000"
+        baseColor="var(--bg-secondary)"
+        menuColor="var(--text-primary)"
+        buttonBgColor="var(--d-volt)"
+        buttonTextColor="var(--d-black)"
         buttonText="LAUNCH APP"
         buttonHref="/dashboard"
         variant="disruptor"
@@ -270,11 +270,10 @@ export default function DashboardPage() {
           top: 76,
           left: '50%',
           transform: `translateX(-50%) translateY(${toast.visible ? 0 : -20}px)`,
-          background: '#000000',
-          color: '#CCFF00',
-          padding: '10px 24px',
-          border: '4px solid #CCFF00',
-          boxShadow: '4px 4px 0px #CCFF00',
+          background: 'var(--d-black)',
+          color: 'var(--d-volt)',
+          border: '4px solid var(--d-volt)',
+          boxShadow: '4px 4px 0px var(--d-volt)',
           fontFamily: "'Space Mono', monospace",
           fontSize: '0.75rem',
           fontWeight: 700,
@@ -296,13 +295,13 @@ export default function DashboardPage() {
           <div
             style={{
               marginBottom: 24,
-              border: '3px solid #ff0000',
-              background: '#fff1f2',
+              border: '3px solid var(--d-volt)',
+              background: 'var(--bg-secondary)',
               padding: '12px 16px',
               fontFamily: "'Space Mono', monospace",
               fontSize: '0.75rem',
               fontWeight: 700,
-              color: '#b91c1c',
+              color: 'var(--text-primary)',
               textTransform: 'uppercase',
             }}
           >
@@ -327,9 +326,9 @@ export default function DashboardPage() {
             <div
               key={i}
               style={{
-                background: '#FFFFFF',
-                border: '4px solid #000000',
-                boxShadow: '8px 8px 0px #000000',
+                background: 'var(--bg-secondary)',
+                border: 'var(--d-border)',
+                boxShadow: 'var(--d-shadow-lg)',
                 padding: 24,
               }}
             >
@@ -340,7 +339,7 @@ export default function DashboardPage() {
                   fontWeight: 700,
                   textTransform: 'uppercase',
                   letterSpacing: '0.1em',
-                  color: '#475569',
+                  color: 'var(--d-muted)',
                   marginBottom: 8,
                 }}
               >
@@ -350,7 +349,7 @@ export default function DashboardPage() {
                 style={{
                   fontFamily: "'Ranchers', cursive",
                   fontSize: '2rem',
-                  color: '#000000',
+                  color: 'var(--text-primary)',
                   lineHeight: 1,
                 }}
               >
@@ -360,7 +359,7 @@ export default function DashboardPage() {
                 style={{
                   width: 40,
                   height: 4,
-                  background: '#CCFF00',
+                  background: 'var(--d-volt)',
                   marginTop: 12,
                 }}
               />
@@ -377,7 +376,7 @@ export default function DashboardPage() {
               fontWeight: 700,
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
-              color: '#CCFF00',
+              color: 'var(--d-volt)',
               marginBottom: 12,
             }}
           >
@@ -386,20 +385,21 @@ export default function DashboardPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
             <div
               style={{
-                background: '#FFFFFF',
-                border: '4px solid #000000',
-                boxShadow: '8px 8px 0px #000000',
+                background: 'var(--bg-secondary)',
+                border: 'var(--d-border)',
+                boxShadow: 'var(--d-shadow-lg)',
                 padding: 20,
+                color: 'var(--text-primary)',
               }}
             >
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, marginBottom: 12 }}>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, marginBottom: 12, color: 'var(--text-primary)' }}>
                 TRENDING COINS
               </div>
               {newsLoading ? (
-                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem' }}>LOADING...</div>
+                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem', color: 'var(--text-primary)' }}>LOADING...</div>
               ) : (
                 trendingCoins.map((coin) => (
-                  <div key={`${coin.symbol}-${coin.name}`} style={{ marginBottom: 8, fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.875rem' }}>
+                  <div key={`${coin.symbol}-${coin.name}`} style={{ marginBottom: 8, fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.875rem', color: 'var(--text-primary)' }}>
                     {coin.name} ({coin.symbol?.toUpperCase()}) · Rank #{coin.market_cap_rank}
                   </div>
                 ))
@@ -407,24 +407,25 @@ export default function DashboardPage() {
             </div>
             <div
               style={{
-                background: '#FFFFFF',
-                border: '4px solid #000000',
-                boxShadow: '8px 8px 0px #000000',
+                background: 'var(--bg-secondary)',
+                border: 'var(--d-border)',
+                boxShadow: 'var(--d-shadow-lg)',
                 padding: 20,
+                color: 'var(--text-primary)',
               }}
             >
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, marginBottom: 12 }}>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, marginBottom: 12, color: 'var(--text-primary)' }}>
                 AI RECOMMENDATION
               </div>
               {newsLoading || !cryptoSignal ? (
-                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem' }}>ANALYSING...</div>
+                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem', color: 'var(--text-primary)' }}>ANALYSING...</div>
               ) : (
                 <>
-                  <div style={{ fontFamily: "'Ranchers', cursive", fontSize: '1.4rem', marginBottom: 8 }}>
+                  <div style={{ fontFamily: "'Ranchers', cursive", fontSize: '1.4rem', marginBottom: 8, color: 'var(--text-primary)' }}>
                     24H MOMENTUM: {cryptoSignal.averageChange > 0 ? '+' : ''}
                     {cryptoSignal.averageChange}%
                   </div>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.875rem', lineHeight: 1.6 }}>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.875rem', lineHeight: 1.6, color: 'var(--text-primary)' }}>
                     {cryptoSignal.recommendation}
                   </div>
                 </>
@@ -435,7 +436,7 @@ export default function DashboardPage() {
 
         {/* Section: Transaction Input */}
         <div style={{ marginBottom: 40 }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#CCFF00', marginBottom: 12 }}>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--d-volt)', marginBottom: 12 }}>
             ⚡ QUICK ADD
           </div>
           <div style={{ position: 'relative' }}>
@@ -445,7 +446,7 @@ export default function DashboardPage() {
 
         {/* Section: Budget Manager */}
         <div style={{ marginBottom: 40 }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#CCFF00', marginBottom: 12 }}>
+           <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--d-volt)', marginBottom: 12 }}>
             💰 BUDGET MANAGER
           </div>
           <BudgetManager accessToken={accessToken} spentByCategory={byCategory} />
@@ -453,7 +454,7 @@ export default function DashboardPage() {
 
         {/* Section: Charts */}
         <div style={{ marginBottom: 40 }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#CCFF00', marginBottom: 12 }}>
+           <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--d-volt)', marginBottom: 12 }}>
             📊 SPENDING BREAKDOWN
           </div>
           <CategoryChart transactions={transactions} />
@@ -461,7 +462,7 @@ export default function DashboardPage() {
 
         {/* Section: Stock Recommendations */}
         <div style={{ marginBottom: 40 }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#CCFF00', marginBottom: 12 }}>
+           <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--d-volt)', marginBottom: 12 }}>
             📈 STOCK RECOMMENDATIONS
           </div>
           <StockWidget />
@@ -469,7 +470,7 @@ export default function DashboardPage() {
 
         {/* Section: Web3 Paymaster */}
         <div style={{ marginBottom: 40 }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#CCFF00', marginBottom: 12 }}>
+           <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--d-volt)', marginBottom: 12 }}>
             ⚡ WEB3 DEFI
           </div>
           <PaymasterWidget />
@@ -477,7 +478,7 @@ export default function DashboardPage() {
 
         {/* Section: Recent Transactions */}
         <div>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#CCFF00', marginBottom: 12 }}>
+          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--d-volt)', marginBottom: 12 }}>
             📋 RECENT ACTIVITY
           </div>
           <TransactionList transactions={transactions} />
@@ -487,7 +488,7 @@ export default function DashboardPage() {
       {/* Footer */}
       <footer
         style={{
-          borderTop: '4px solid #000000',
+          borderTop: 'var(--d-border)',
           padding: '20px 24px',
           display: 'flex',
           alignItems: 'center',
@@ -495,7 +496,7 @@ export default function DashboardPage() {
           gap: 12,
           fontFamily: "'Space Mono', monospace",
           fontSize: '0.6875rem',
-          color: '#475569',
+          color: 'var(--d-muted)',
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
         }}
@@ -527,27 +528,28 @@ export default function DashboardPage() {
             padding: 20,
           }}
         >
-          <div
+           <div
             style={{
-              background: '#FFFFFF',
-              border: '4px solid #ff0000',
-              boxShadow: '8px 8px 0px #ff0000',
+              background: 'var(--bg-secondary)',
+              border: '4px solid var(--d-volt)',
+              boxShadow: 'var(--d-shadow-volt)',
               padding: 24,
               maxWidth: 400,
               width: '100%',
+              color: 'var(--text-primary)',
             }}
           >
-            <div
-              style={{
-                fontFamily: "'Space Mono', monospace",
-                fontSize: '1rem',
-                fontWeight: 700,
-                color: '#ff0000',
-                marginBottom: 16,
-              }}
-            >
-              🚨 BUDGET EXCEEDED
-            </div>
+               <div
+                style={{
+                  fontFamily: "'Space Mono', monospace",
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  color: 'var(--d-volt)',
+                  marginBottom: 16,
+                }}
+              >
+                🚨 BUDGET EXCEEDED
+              </div>
             <p
               style={{
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
@@ -560,13 +562,13 @@ export default function DashboardPage() {
               This will exceed your defined budget. Are you sure you want to proceed?
             </p>
             <div style={{ display: 'flex', gap: 12 }}>
-              <button
+               <button
                 onClick={() => setPendingBlock(null)}
                 style={{
                   flex: 1,
-                  background: '#000',
-                  color: '#fff',
-                  border: 'none',
+                  background: 'var(--d-black)',
+                  color: 'var(--d-white)',
+                  border: 'var(--d-border-thin)',
                   padding: '12px 0',
                   fontFamily: "'Space Mono', monospace",
                   fontSize: '0.75rem',
@@ -577,14 +579,14 @@ export default function DashboardPage() {
               >
                 CANCEL
               </button>
-              <button
+               <button
                 onClick={handleForceTransaction}
                 disabled={isLoading}
                 style={{
                   flex: 1,
-                  background: '#ff0000',
-                  color: '#fff',
-                  border: 'none',
+                  background: 'var(--d-volt)',
+                  color: 'var(--d-black)',
+                  border: 'var(--d-border-thin)',
                   padding: '12px 0',
                   fontFamily: "'Space Mono', monospace",
                   fontSize: '0.75rem',

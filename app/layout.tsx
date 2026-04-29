@@ -7,6 +7,8 @@ export const metadata: Metadata = {
     'AI-powered personal finance assistant with zkSync DeFi integration. Track spending in natural language, bundle DeFi transactions gaslessly.',
 };
 
+import { ThemeProvider } from './components/ThemeProvider';
+
 export default function RootLayout({
   children,
 }: {
@@ -14,7 +16,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

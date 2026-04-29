@@ -8,8 +8,8 @@ import { ArrowRight, Wallet, RefreshCw, Zap } from 'lucide-react';
 const navItems: CardNavItem[] = [
   {
     label: 'DASHBOARD',
-    bgColor: '#000000',
-    textColor: '#CCFF00',
+    bgColor: 'var(--d-black)',
+    textColor: 'var(--d-volt)',
     links: [
       { label: 'OVERVIEW', href: '/dashboard', ariaLabel: 'Dashboard Overview' },
       { label: 'TRANSACTIONS', href: '/dashboard', ariaLabel: 'All Transactions' },
@@ -17,8 +17,8 @@ const navItems: CardNavItem[] = [
   },
   {
     label: 'WEB3',
-    bgColor: '#121212',
-    textColor: '#FFFFFF',
+    bgColor: 'var(--d-dark)',
+    textColor: 'var(--d-white)',
     links: [
       { label: 'ZAAP BUNDLER', href: '/zaap', ariaLabel: 'Bundle Transactions' },
       { label: 'AML STATUS', href: '/zaap', ariaLabel: 'AML Verification' },
@@ -28,8 +28,8 @@ const navItems: CardNavItem[] = [
   },
   {
     label: 'SETTINGS',
-    bgColor: '#1a1a2e',
-    textColor: '#CCFF00',
+    bgColor: 'var(--bg-secondary)',
+    textColor: 'var(--d-volt)',
     links: [
       { label: 'API KEYS', href: '/dashboard', ariaLabel: 'Manage API Keys' },
       { label: 'WALLET', href: '/dashboard', ariaLabel: 'Wallet Settings' },
@@ -37,8 +37,8 @@ const navItems: CardNavItem[] = [
   },
   {
     label: 'YOUR ACCOUNT',
-    bgColor: '#f5f5f5',
-    textColor: '#000000',
+    bgColor: 'var(--bg-secondary)',
+    textColor: 'var(--text-primary)',
     links: [
       { label: 'PROFILE', href: '/profile', ariaLabel: 'View Profile' },
       { label: 'FIX YOUR ACCOUNT', href: '/profile', ariaLabel: 'Fix Your Account' },
@@ -99,14 +99,14 @@ export default function ZaapPage() {
   const allStepsValid = steps.every((s) => s.protocol && s.asset);
 
   return (
-    <div style={{ background: '#121212', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--bg-primary)', minHeight: '100vh' }}>
       <CardNav
         brandName="FIXMYPAYMENTS"
         items={navItems}
-        baseColor="#FFFFFF"
-        menuColor="#000000"
-        buttonBgColor="#CCFF00"
-        buttonTextColor="#000000"
+        baseColor="var(--bg-primary)"
+        menuColor="var(--text-primary)"
+        buttonBgColor="var(--d-volt)"
+        buttonTextColor="var(--d-black)"
         buttonText="LAUNCH APP"
         buttonHref="/dashboard"
         variant="disruptor"
@@ -122,7 +122,7 @@ export default function ZaapPage() {
               fontWeight: 700,
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
-              color: '#CCFF00',
+              color: 'var(--d-volt)',
               marginBottom: 8,
             }}
           >
@@ -134,7 +134,7 @@ export default function ZaapPage() {
               fontSize: 'clamp(2rem, 5vw, 3.5rem)',
               textTransform: 'uppercase',
               lineHeight: 0.85,
-              color: '#FFFFFF',
+              color: 'var(--text-primary)',
               marginBottom: 16,
             }}
           >
@@ -164,10 +164,10 @@ export default function ZaapPage() {
               gap: 10,
               padding: '12px 28px',
               minHeight: 48,
-              background: walletConnected ? '#CCFF00' : '#000000',
-              color: walletConnected ? '#000000' : '#FFFFFF',
-              border: '4px solid #000000',
-              boxShadow: '8px 8px 0px ' + (walletConnected ? '#CCFF00' : '#FFFFFF'),
+               background: walletConnected ? 'var(--d-volt)' : 'var(--d-black)',
+              color: walletConnected ? 'var(--d-black)' : 'var(--d-white)',
+              border: 'var(--d-border)',
+              boxShadow: walletConnected ? '8px 8px 0px var(--d-volt)' : '8px 8px 0px var(--text-primary)',
               fontFamily: "'Space Mono', monospace",
               fontSize: '0.875rem',
               fontWeight: 700,
@@ -196,9 +196,9 @@ export default function ZaapPage() {
             <div
               key={i}
               style={{
-                background: '#FFFFFF',
-                border: '8px solid #000000',
-                boxShadow: '8px 8px 0px #FFFFFF',
+                background: 'var(--bg-secondary)',
+                border: 'var(--d-border)',
+                boxShadow: 'var(--d-shadow-lg)',
                 padding: 32,
                 position: 'relative',
                 overflow: 'hidden',
@@ -212,8 +212,8 @@ export default function ZaapPage() {
                   top: -10,
                   fontFamily: "'Ranchers', cursive",
                   fontSize: '8rem',
-                  color: '#000000',
-                  opacity: 0.03,
+                  color: 'var(--text-primary)',
+                  opacity: 0.05,
                   lineHeight: 1,
                   pointerEvents: 'none',
                 }}
@@ -271,7 +271,7 @@ export default function ZaapPage() {
                     style={{
                       fontFamily: "'Space Mono', monospace",
                       fontSize: '0.6875rem',
-                      color: '#475569',
+                      color: 'var(--text-secondary)',
                       textTransform: 'uppercase',
                     }}
                   >
@@ -366,10 +366,10 @@ export default function ZaapPage() {
               gap: 12,
               padding: '16px 48px',
               minHeight: 56,
-              background: allStepsValid && walletConnected ? '#CCFF00' : '#333',
-              color: allStepsValid && walletConnected ? '#000000' : '#666',
-              border: '4px solid #000000',
-              boxShadow: allStepsValid && walletConnected ? '8px 8px 0px #000000' : 'none',
+               background: allStepsValid && walletConnected ? 'var(--d-volt)' : 'var(--text-muted)',
+              color: allStepsValid && walletConnected ? 'var(--d-black)' : 'var(--bg-primary)',
+              border: 'var(--d-border)',
+              boxShadow: allStepsValid && walletConnected ? '8px 8px 0px var(--text-primary)' : 'none',
               fontFamily: "'Ranchers', cursive",
               fontSize: '1.5rem',
               textTransform: 'uppercase',
@@ -398,7 +398,7 @@ export default function ZaapPage() {
               style={{
                 fontFamily: "'Space Mono', monospace",
                 fontSize: '0.6875rem',
-                color: '#475569',
+                color: 'var(--text-secondary)',
                 textTransform: 'uppercase',
                 marginTop: 12,
               }}
@@ -412,7 +412,7 @@ export default function ZaapPage() {
       {/* Footer */}
       <footer
         style={{
-          borderTop: '4px solid #000000',
+           borderTop: 'var(--d-border)',
           padding: '20px 24px',
           display: 'flex',
           alignItems: 'center',
@@ -420,7 +420,7 @@ export default function ZaapPage() {
           gap: 12,
           fontFamily: "'Space Mono', monospace",
           fontSize: '0.6875rem',
-          color: '#475569',
+          color: 'var(--text-muted)',
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
         }}

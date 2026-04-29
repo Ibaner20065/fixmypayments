@@ -12,15 +12,15 @@ export default function TransactionList({ transactions }: TransactionListProps) 
     return (
       <div
         style={{
-          background: '#FFFFFF',
-          border: '4px solid #000000',
-          boxShadow: '8px 8px 0px #000000',
+          background: 'var(--bg-secondary)',
+          border: 'var(--d-border)',
+          boxShadow: 'var(--d-shadow-lg)',
           padding: '48px 24px',
           textAlign: 'center',
         }}
       >
         <div style={{ fontFamily: "'Ranchers', cursive", fontSize: '2rem', marginBottom: 8, opacity: 0.2 }}>📋</div>
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem', textTransform: 'uppercase', color: '#475569' }}>
+        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--d-muted)' }}>
           NO TRANSACTIONS YET
         </div>
       </div>
@@ -30,9 +30,9 @@ export default function TransactionList({ transactions }: TransactionListProps) 
   return (
     <div
       style={{
-        background: '#FFFFFF',
-        border: '4px solid #000000',
-        boxShadow: '8px 8px 0px #000000',
+        background: 'var(--bg-secondary)',
+        border: 'var(--d-border)',
+        boxShadow: 'var(--d-shadow-lg)',
         overflow: 'hidden',
       }}
     >
@@ -42,9 +42,9 @@ export default function TransactionList({ transactions }: TransactionListProps) 
           display: 'grid',
           gridTemplateColumns: '1fr 120px 100px',
           padding: '12px 20px',
-          borderBottom: '4px solid #000000',
-          background: '#000000',
-          color: '#FFFFFF',
+          borderBottom: 'var(--d-border)',
+          background: 'var(--d-black)',
+          color: 'var(--d-volt)',
           fontFamily: "'Space Mono', monospace",
           fontSize: '0.6875rem',
           fontWeight: 700,
@@ -65,11 +65,12 @@ export default function TransactionList({ transactions }: TransactionListProps) 
             display: 'grid',
             gridTemplateColumns: '1fr 120px 100px',
             padding: '14px 20px',
-            borderBottom: '2px solid #000000',
+            borderBottom: '2px solid var(--text-primary)',
             transition: 'background 0.1s ease',
             cursor: 'default',
+            color: 'var(--text-primary)',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = '#f5f5f5'; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--bg-primary)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
         >
           {/* Text */}
@@ -79,7 +80,7 @@ export default function TransactionList({ transactions }: TransactionListProps) 
                 fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontSize: '0.875rem',
                 fontWeight: 500,
-                color: '#000',
+                color: 'var(--text-primary)',
               }}
             >
               {t.emoji} {t.raw_text}
@@ -88,7 +89,7 @@ export default function TransactionList({ transactions }: TransactionListProps) 
               style={{
                 fontFamily: "'Space Mono', monospace",
                 fontSize: '0.625rem',
-                color: '#475569',
+                color: 'var(--d-muted)',
                 marginTop: 2,
               }}
             >
@@ -102,15 +103,15 @@ export default function TransactionList({ transactions }: TransactionListProps) 
               style={{
                 display: 'inline-flex',
                 padding: '2px 10px',
-                border: '4px solid #000000',
+                border: '4px solid var(--d-black)',
                 borderRadius: 100,
                 fontFamily: "'Space Mono', monospace",
                 fontSize: '0.5625rem',
                 fontWeight: 700,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
-                background: '#CCFF00',
-                color: '#000',
+                background: 'var(--d-volt)',
+                color: 'var(--d-black)',
               }}
             >
               {t.category}
@@ -123,7 +124,7 @@ export default function TransactionList({ transactions }: TransactionListProps) 
               textAlign: 'right',
               fontFamily: "'Ranchers', cursive",
               fontSize: '1.125rem',
-              color: '#000',
+              color: 'var(--text-primary)',
             }}
           >
             ₹{t.amount.toLocaleString('en-IN')}
