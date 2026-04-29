@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+🚀 FIXMYPAYMENTS: The Disruptor Financial OS
 
-## Getting Started
+![FixMyPayments Banner](https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=2000&ixlib=rb-4.0.3)
 
-First, run the development server:
+> **"Financial sovereignty shouldn't be a luxury. It should be a standard."**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+FixMyPayments is a next-generation Financial Operating System built on the **Disruptor Design System**. It bridges the gap between traditional Web2 banking and the future of Web3 DeFi, providing privacy-first identity orchestration and real-time algorithmic budgeting.
+
+---
+
+## 🌪️ THE DISRUPTOR STACK
+
+- **Frontend**: Next.js 16 (React 19) + Framer Motion
+- **Design**: Neo-Brutalist "Disruptor" UI with "Yellow-SaaS" fallback
+- **Authentication**: Firebase Auth with cookie-based session persistence
+- **Database**: Cloud Firestore (NoSQL)
+- **AI Engine**: Anthropic Claude 3.5 Sonnet (Transaction Classification & Identity Orchestration)
+- **Email**: Resend (Real-time Budget Alerts)
+- **Web3**: zkSync-ethers + ZAAP Bundler (Smart Account Abstraction)
+
+---
+
+## ⚡ KEY FEATURES
+
+### 🛡️ Identity Orchestrator (ZKP)
+Our flagship feature. We use **LLM-driven Identity Orchestration** to simulate Zero-Knowledge Proofs. 
+- **Privacy-First**: Verify identity without exposing PII (Personally Identifiable Information).
+- **Risk Analysis**: Real-time risk assessment for every verification request.
+- **Privacy Impact Summary**: Transparent documentation of how data is handled.
+
+### 💰 Algorithmic Budgeting
+Stop guessing where your money goes.
+- **NLP Transactions**: Just type "Starbucks 500" or "Swiggy 300" — our AI handles the rest.
+- **Smart Alerts**: 80% warning and 100% hard-block limits sent via Resend.
+- **Force Protocol**: Exceeded your budget? Use the **Force Proceed** override for emergency transactions.
+
+### ⛓️ Web3 ZAAP Bundler
+Integrated DeFi capabilities for the modern investor.
+- **Paymaster Config**: Gasless transactions via specialized paymasters.
+- **ZAAP Bundling**: Group multiple transactions into a single batch to save gas.
+- **AML Status**: Institutional-grade AML checks on all crypto interactions.
+
+---
+
+## 🛠️ ARCHITECTURE
+
+```mermaid
+graph TD
+    User((User)) -->|Browser| NextJS[Next.js 16 App Router]
+    NextJS -->|Auth| Firebase[Firebase Auth]
+    NextJS -->|Logic| API[API Routes]
+    API -->|Identity| Claude[Anthropic Claude API]
+    API -->|Budget| Firestore[Cloud Firestore]
+    API -->|Alerts| Resend[Resend Email API]
+    API -->|DeFi| zkSync[zkSync Smart Accounts]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🚀 GETTING STARTED
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. Prerequisites
+- Node.js 20+
+- Firebase Project
+- Anthropic API Key
+- Resend API Key
 
-## Learn More
+### 2. Environment Setup
+Create a `.env.local` file:
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
 
-To learn more about Next.js, take a look at the following resources:
+# Server Side
+FIREBASE_SERVICE_ACCOUNT_KEY='{ "type": "service_account", ... }'
+ANTHROPIC_API_KEY=...
+RESEND_API_KEY=...
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Installation
+```bash
+npm install
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🎨 DESIGN PHILOSOPHY: THE DISRUPTOR
+FixMyPayments rejects the "minimalist-boring" trend. We use **Neo-Brutalism**:
+- **High Contrast**: Pure blacks, pure whites, and Neon Yellow (`#CCFF00`).
+- **Heavy Strokes**: 4px to 8px borders for that "industrial" feel.
+- **Space Mono**: Use of monospace fonts for data-heavy sections to emphasize technical precision.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📜 LICENSE
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
