@@ -72,8 +72,8 @@ export default function BudgetManager({ accessToken, spentByCategory = {} }: Pro
 
   if (!budget) {
     return (
-      <div style={{ background: '#FFFFFF', border: '4px solid #000', boxShadow: '8px 8px 0px #000', padding: 24 }}>
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem', color: '#666' }}>
+      <div style={{ background: 'var(--bg-secondary)', border: 'var(--d-border)', boxShadow: 'var(--d-shadow-lg)', padding: 24 }}>
+        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem', color: 'var(--text-muted)' }}>
           {accessToken ? 'LOADING BUDGETS...' : 'LOGIN TO MANAGE BUDGETS'}
         </div>
       </div>
@@ -83,16 +83,16 @@ export default function BudgetManager({ accessToken, spentByCategory = {} }: Pro
   const merged = { ...budget, ...editing };
 
   return (
-    <div style={{ background: '#FFFFFF', border: '4px solid #000', boxShadow: '8px 8px 0px #000', padding: 24, position: 'relative' }}>
+    <div style={{ background: 'var(--bg-secondary)', border: 'var(--d-border)', boxShadow: 'var(--d-shadow-lg)', padding: 24, position: 'relative' }}>
       {/* Toast */}
       {toast && (
-        <div style={{ position: 'absolute', top: 12, right: 12, background: '#000', color: '#CCFF00', padding: '6px 14px', fontFamily: "'Space Mono', monospace", fontSize: '0.625rem', fontWeight: 700, border: '2px solid #CCFF00' }}>
+        <div style={{ position: 'absolute', top: 12, right: 12, background: 'var(--d-black)', color: 'var(--d-volt)', padding: '6px 14px', fontFamily: "'Space Mono', monospace", fontSize: '0.625rem', fontWeight: 700, border: '2px solid var(--d-volt)' }}>
           {toast}
         </div>
       )}
 
       {/* Total budget */}
-      <div style={{ marginBottom: 20, paddingBottom: 16, borderBottom: '3px solid #000' }}>
+      <div style={{ marginBottom: 20, paddingBottom: 16, borderBottom: '3px solid var(--d-black)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase' }}>
             💰 MONTHLY TOTAL BUDGET
@@ -100,7 +100,7 @@ export default function BudgetManager({ accessToken, spentByCategory = {} }: Pro
           <input
             type="number" value={editing.total ?? budget.total} min={0} step={1000}
             onChange={(e) => setEditing((p) => ({ ...p, total: Number(e.target.value) }))}
-            style={{ width: 110, padding: '6px 10px', border: '2px solid #000', fontFamily: "'Space Mono', monospace", fontSize: '0.875rem', fontWeight: 700, textAlign: 'right', outline: 'none' }}
+            style={{ width: 110, padding: '6px 10px', border: '2px solid var(--d-black)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontFamily: "'Space Mono', monospace", fontSize: '0.875rem', fontWeight: 700, textAlign: 'right', outline: 'none' }}
           />
         </div>
         {/* Progress bar for total */}
@@ -109,10 +109,10 @@ export default function BudgetManager({ accessToken, spentByCategory = {} }: Pro
           const pct = Math.min((totalSpent / merged.total) * 100, 100);
           return (
             <div>
-              <div style={{ height: 10, background: '#f0f0f0', border: '2px solid #000', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${pct}%`, background: pct >= 100 ? '#ff0000' : pct >= 80 ? '#ff9900' : '#CCFF00', transition: 'width 0.5s ease' }} />
+              <div style={{ height: 10, background: 'var(--bg-primary)', border: '2px solid var(--d-black)', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${pct}%`, background: pct >= 100 ? '#ff0000' : pct >= 80 ? '#ff9900' : 'var(--d-volt)', transition: 'width 0.5s ease' }} />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontFamily: "'Space Mono', monospace", fontSize: '0.5625rem', color: '#666' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontFamily: "'Space Mono', monospace", fontSize: '0.5625rem', color: 'var(--text-muted)' }}>
                 <span>₹{totalSpent.toLocaleString('en-IN')} SPENT</span>
                 <span>{Math.round(pct)}%</span>
               </div>
@@ -128,7 +128,7 @@ export default function BudgetManager({ accessToken, spentByCategory = {} }: Pro
           const spent = spentByCategory[cat] ?? 0;
           const pct = Math.min((spent / limit) * 100, 100);
           return (
-            <div key={cat} style={{ padding: '10px 12px', border: '2px solid #000', background: '#fafafa' }}>
+            <div key={cat} style={{ padding: '10px 12px', border: '2px solid var(--d-black)', background: 'var(--bg-primary)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.5625rem', fontWeight: 700, textTransform: 'uppercase' }}>
                   {CATEGORY_EMOJI[cat]} {cat}
@@ -136,13 +136,13 @@ export default function BudgetManager({ accessToken, spentByCategory = {} }: Pro
                 <input
                   type="number" value={(editing as any)[cat] ?? (budget as any)[cat]} min={0} step={500}
                   onChange={(e) => setEditing((p) => ({ ...p, [cat]: Number(e.target.value) }))}
-                  style={{ width: 80, padding: '3px 6px', border: '2px solid #000', fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textAlign: 'right', outline: 'none' }}
+                  style={{ width: 80, padding: '3px 6px', border: '2px solid var(--d-black)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textAlign: 'right', outline: 'none' }}
                 />
               </div>
-              <div style={{ height: 6, background: '#f0f0f0', border: '1px solid #ccc', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${pct}%`, background: pct >= 100 ? '#ff0000' : pct >= 80 ? '#ff9900' : '#CCFF00', transition: 'width 0.5s ease' }} />
+              <div style={{ height: 6, background: 'var(--bg-secondary)', border: '1px solid var(--d-black)', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${pct}%`, background: pct >= 100 ? '#ff0000' : pct >= 80 ? '#ff9900' : 'var(--d-volt)', transition: 'width 0.5s ease' }} />
               </div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.5rem', color: '#888', marginTop: 3 }}>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.5rem', color: 'var(--text-muted)', marginTop: 3 }}>
                 ₹{spent.toLocaleString('en-IN')} / ₹{limit.toLocaleString('en-IN')}
               </div>
             </div>
@@ -153,7 +153,7 @@ export default function BudgetManager({ accessToken, spentByCategory = {} }: Pro
       {/* Save button */}
       <button
         onClick={handleSave} disabled={saving || Object.keys(editing).length === 0}
-        style={{ marginTop: 16, width: '100%', padding: '12px 0', background: saving || Object.keys(editing).length === 0 ? '#ccc' : '#CCFF00', border: '3px solid #000', boxShadow: '4px 4px 0px #000', fontFamily: "'Space Mono', monospace", fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', cursor: saving || Object.keys(editing).length === 0 ? 'not-allowed' : 'pointer', transition: 'all 0.15s' }}
+         style={{ marginTop: 16, width: '100%', padding: '12px 0', background: saving || Object.keys(editing).length === 0 ? 'var(--bg-primary)' : 'var(--d-volt)', color: saving || Object.keys(editing).length === 0 ? 'var(--text-muted)' : 'var(--d-black)', border: 'var(--d-border-thin)', boxShadow: 'var(--d-shadow-sm)', fontFamily: "'Space Mono', monospace", fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', cursor: saving || Object.keys(editing).length === 0 ? 'not-allowed' : 'pointer', transition: 'all 0.15s' }}
       >
         {saving ? 'SAVING...' : Object.keys(editing).length > 0 ? '💾 SAVE CHANGES' : 'NO CHANGES'}
       </button>

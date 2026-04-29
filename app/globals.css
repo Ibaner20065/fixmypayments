@@ -22,18 +22,28 @@ body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.6;
   min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ─────────────────────────────────────────────────────
    DISRUPTOR DESIGN TOKENS
    ───────────────────────────────────────────────────── */
 :root {
+  /* Dynamic App Colors */
+  --bg-primary: #121212;
+  --text-primary: #FFFFFF;
+  --bg-secondary: #000000;
+  
   /* Disruptor Palette — STRICT */
   --d-dark: #121212;
   --d-black: #000000;
   --d-white: #FFFFFF;
   --d-volt: #CCFF00;
   --d-muted: #475569;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
 
   /* Disruptor Shadows — solid offset, NO blur */
   --d-shadow-sm: 4px 4px 0px #000000;
@@ -51,24 +61,37 @@ body {
   --font-body: 'Plus Jakarta Sans', sans-serif;
   --font-counter: 'Archivo', sans-serif;
 
-  /* Yellow-SaaS Palette — STRICT */
+  /* Yellow-SaaS Palette — FIXED */
   --y-yellow: #ffe17c;
   --y-charcoal: #171e19;
   --y-sage: #b7c6c2;
   --y-white: #FFFFFF;
   --y-black: #000000;
-
-  /* Yellow-SaaS Shadows */
   --y-shadow-sm: 4px 4px 0px 0px #000000;
   --y-shadow-lg: 8px 8px 0px 0px #000000;
   --y-shadow-xl: 12px 12px 0px 0px #000000;
-
-  /* Yellow-SaaS Borders */
   --y-border: 2px solid #000000;
-
-  /* Yellow-SaaS Typography */
   --font-heading: 'Cabinet Grotesk', sans-serif;
   --font-saas-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+[data-theme='light'] {
+  --bg-primary: #F1F5F9;
+  --text-primary: #000000;
+  --bg-secondary: #FFFFFF;
+  
+  /* Override core Disruptor colors for light mode */
+  --d-dark: #FFFFFF;
+  --d-white: #121212;
+  --d-black: #FFFFFF;
+  --d-muted: #64748B;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  
+  /* Shadows need to be visible on light background */
+  --d-shadow-sm: 4px 4px 0px #000000;
+  --d-shadow-lg: 8px 8px 0px #000000;
+  --d-shadow-inv: 8px 8px 0px #000000;
 }
 
 /* ─────────────────────────────────────────────────────
@@ -84,8 +107,8 @@ body {
   padding: 12px 28px;
   min-height: 48px;
   background: var(--d-volt);
-  color: var(--d-black);
-  border: var(--d-border);
+  color: #000000; /* Always dark on volt */
+  border: var(--border-app);
   box-shadow: var(--d-shadow-lg);
   font-family: var(--font-tech);
   font-size: 0.875rem;

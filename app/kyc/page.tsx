@@ -35,6 +35,16 @@ const navItems: CardNavItem[] = [
       { label: 'WALLET', href: '/dashboard', ariaLabel: 'Wallet Settings' },
     ],
   },
+  {
+    label: 'YOUR ACCOUNT',
+    bgColor: '#f5f5f5',
+    textColor: '#000000',
+    links: [
+      { label: 'PROFILE', href: '/profile', ariaLabel: 'View Profile' },
+      { label: 'FIX YOUR ACCOUNT', href: '/profile', ariaLabel: 'Fix Your Account' },
+      { label: 'CHANGE YOUR GMAIL', href: '/profile', ariaLabel: 'Change Gmail' },
+    ],
+  },
 ];
 
 interface IdentityResult {

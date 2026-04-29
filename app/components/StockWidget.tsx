@@ -14,10 +14,10 @@ interface StockQuote {
 }
 
 const REC_COLORS: Record<string, { bg: string; text: string }> = {
-  BUY:  { bg: '#CCFF00', text: '#000' },
-  HOLD: { bg: '#FFD700', text: '#000' },
+  BUY:  { bg: 'var(--d-volt)', text: 'var(--d-black)' },
+  HOLD: { bg: 'var(--text-secondary)', text: 'var(--bg-primary)' },
   SELL: { bg: '#ff4444', text: '#fff' },
-  'N/A': { bg: '#e0e0e0', text: '#666' },
+  'N/A': { bg: 'var(--bg-primary)', text: 'var(--text-muted)' },
 };
 
 export default function StockWidget() {
@@ -50,24 +50,24 @@ export default function StockWidget() {
 
   if (loading) {
     return (
-      <div style={{ background: '#FFFFFF', border: '4px solid #000', boxShadow: '8px 8px 0px #000', padding: 24 }}>
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem' }}>FETCHING LIVE QUOTES...</div>
+       <div style={{ background: 'var(--bg-secondary)', border: 'var(--d-border)', boxShadow: 'var(--d-shadow-lg)', padding: 24 }}>
+        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem', color: 'var(--text-primary)' }}>FETCHING LIVE QUOTES...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={{ background: '#fff1f2', border: '4px solid #ff0000', boxShadow: '8px 8px 0px #000', padding: 24 }}>
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem', color: '#cc0000', fontWeight: 700 }}>{error}</div>
+       <div style={{ background: 'var(--bg-secondary)', border: '4px solid var(--d-volt)', boxShadow: 'var(--d-shadow-lg)', padding: 24 }}>
+        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.75rem', color: 'var(--text-primary)', fontWeight: 700 }}>{error}</div>
       </div>
     );
   }
 
   return (
-    <div style={{ background: '#FFFFFF', border: '4px solid #000', boxShadow: '8px 8px 0px #000', padding: 24 }}>
+    <div style={{ background: 'var(--bg-secondary)', border: 'var(--d-border)', boxShadow: 'var(--d-shadow-lg)', padding: 24 }}>
       {cachedAt && (
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.5rem', color: '#999', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+         <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.5rem', color: 'var(--text-muted)', marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           UPDATED {new Date(cachedAt).toLocaleTimeString()} · AUTO-REFRESH 5MIN
         </div>
       )}
@@ -79,8 +79,8 @@ export default function StockWidget() {
           return (
             <div
               key={stock.ticker}
-              style={{ border: '3px solid #000', padding: 16, background: '#fafafa', transition: 'box-shadow 0.15s', cursor: 'default' }}
-              onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '4px 4px 0px #CCFF00')}
+              style={{ border: 'var(--d-border-thin)', padding: 16, background: 'var(--bg-primary)', transition: 'box-shadow 0.15s', cursor: 'default', color: 'var(--text-primary)' }}
+               onMouseEnter={(e) => (e.currentTarget.style.boxShadow = 'var(--d-shadow-volt)')}
               onMouseLeave={(e) => (e.currentTarget.style.boxShadow = 'none')}
             >
               {/* Header */}
@@ -89,11 +89,11 @@ export default function StockWidget() {
                   <div style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase' }}>
                     {stock.ticker}
                   </div>
-                  <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.75rem', color: '#555', marginTop: 2, maxWidth: 130, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                   <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: 2, maxWidth: 130, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {stock.name}
                   </div>
                 </div>
-                <span style={{ background: rec.bg, color: rec.text, padding: '3px 8px', fontFamily: "'Space Mono', monospace", fontSize: '0.5625rem', fontWeight: 700, border: '2px solid #000', flexShrink: 0 }}>
+                 <span style={{ background: rec.bg, color: rec.text, padding: '3px 8px', fontFamily: "'Space Mono', monospace", fontSize: '0.5625rem', fontWeight: 700, border: 'var(--d-border-thin)', flexShrink: 0 }}>
                   {stock.recommendation}
                 </span>
               </div>
@@ -108,13 +108,13 @@ export default function StockWidget() {
                 <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.6875rem', fontWeight: 700, color: isUp ? '#16a34a' : '#dc2626' }}>
                   {isUp ? '▲' : '▼'} {isUp ? '+' : ''}{stock.changePercent.toFixed(2)}%
                 </span>
-                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.5625rem', color: '#999' }}>
+                 <span style={{ fontFamily: "'Space Mono', monospace", fontSize: '0.5625rem', color: 'var(--text-muted)' }}>
                   {isUp ? '+' : ''}{stock.currency === 'INR' ? '₹' : '$'}{stock.change.toFixed(2)} today
                 </span>
               </div>
 
               {/* Sector badge */}
-              <div style={{ marginTop: 8, display: 'inline-block', background: '#000', color: '#CCFF00', padding: '2px 8px', fontFamily: "'Space Mono', monospace", fontSize: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+               <div style={{ marginTop: 8, display: 'inline-block', background: 'var(--d-black)', color: 'var(--d-volt)', padding: '2px 8px', fontFamily: "'Space Mono', monospace", fontSize: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {stock.sector}
               </div>
             </div>
