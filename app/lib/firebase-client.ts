@@ -19,6 +19,9 @@ const firebaseConfig = {
 
 let app: FirebaseApp;
 if (!getApps().length) {
+  if (!firebaseConfig.apiKey || !firebaseConfig.appId) {
+    console.error('❌ FIREBASE CLIENT ERROR: Missing NEXT_PUBLIC_FIREBASE_API_KEY or NEXT_PUBLIC_FIREBASE_APP_ID');
+  }
   app = initializeApp(firebaseConfig);
 } else {
   app = getApps()[0];

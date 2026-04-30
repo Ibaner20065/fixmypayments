@@ -8,6 +8,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
 import { getFirebaseAuth } from '../lib/firebase-client';
 
@@ -23,6 +24,7 @@ export default function AuthPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,8 +64,16 @@ export default function AuthPage() {
       }
 
       // LOGIN MODE
+      // 0. Sanity check: is Firebase initialized?
+      const auth = getFirebaseAuth();
+      if (!auth.app.options.apiKey) {
+        setError('⚙️ FIREBASE CLIENT ERROR: API Key missing. Please check your .env.local file.');
+        setLoading(false);
+        return;
+      }
+
       // 1. Sign in client-side with Firebase
-      const credential = await signInWithEmailAndPassword(getFirebaseAuth(), email, password);
+      const credential = await signInWithEmailAndPassword(auth, email, password);
       const idToken = await credential.user.getIdToken();
 
       // 2. Verify with our server + get profile
@@ -99,8 +109,27 @@ export default function AuthPage() {
       } else if (code === 'auth/configuration-not-found' || code === 'auth/invalid-api-key') {
         message = '⚙️ Firebase not fully configured yet — add NEXT_PUBLIC_FIREBASE_API_KEY + APP_ID to .env.local';
       }
-      setError(message);
+      setError(message + (err?.message ? ` (${err.message})` : ''));
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError('PLEASE ENTER YOUR EMAIL ADDRESS FIRST');
+      return;
+    }
+    setError('');
+    setSuccess('');
+    setResetLoading(true);
+
+    try {
+      await sendPasswordResetEmail(getFirebaseAuth(), email);
+      setSuccess('PASSWORD RESET EMAIL SENT! CHECK YOUR INBOX.');
+    } catch (err: any) {
+      setError(err?.message || 'FAILED TO SEND RESET EMAIL');
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -218,6 +247,29 @@ export default function AuthPage() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {mode === 'login' && (
+                <div style={{ textAlign: 'right', marginTop: 8 }}>
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    disabled={resetLoading}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#666',
+                      fontFamily: "'Space Mono', monospace",
+                      fontSize: '0.625rem',
+                      fontWeight: 700,
+                      textDecoration: 'underline',
+                      cursor: resetLoading ? 'not-allowed' : 'pointer',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    {resetLoading ? 'SENDING...' : 'FORGOT PASSWORD?'}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Error / Success */}
