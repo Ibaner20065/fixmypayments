@@ -102,6 +102,49 @@ Integrated **Neo-Brutalist Dark/Light Toggle** that persists across sessions.
 5. **Persistence**: Transaction is saved to Firestore.
 6. **Notification**: Resend API sends confirmation/alert emails.
 
+### Full System Flow
+
+```mermaid
+graph TD
+    User([User]) --> Auth{Authenticated?}
+    Auth -- No --> Login[Auth Page: Login/Signup]
+    Login --> FirebaseID[Firebase Auth]
+    FirebaseID --> Auth
+    
+    Auth -- Yes --> Dashboard[Dashboard: Insights & Charts]
+    Dashboard --> Pay[Payment Interface]
+    
+    Pay --> Input[Input Transaction: Text/Voice]
+    Input --> Classify[app/api/transactions: POST]
+    
+    subgraph AI_Engine [AI & Classification]
+        Classify --> AI[Anthropic Claude 3.5]
+        AI --> Result{Merchant/Category/Amount}
+        Result -- Success --> BudgetCheck
+        Result -- Fail --> Rules[Rule-based Fallback]
+        Rules --> BudgetCheck
+    end
+    
+    subgraph Guardrails [Budget Guardrails]
+        BudgetCheck[Check budgets in Firestore]
+        BudgetCheck --> Over80{> 80%?}
+        Over80 -- Yes --> Alert[Warning/Blocked UI]
+        Alert -- Blocked --> Force{Force Protocol?}
+        Force -- Yes --> Persist
+        Force -- No --> Cancel[Transaction Cancelled]
+        Over80 -- No --> Persist
+    end
+    
+    subgraph Persistence [Persistence & Notify]
+        Persist[Save to Firestore]
+        Persist --> Email[Resend API: Email Alert]
+        Persist --> UpdateDash[Update Dashboard Stats]
+    end
+    
+    Dashboard --> ZAAP[Web3: ZAAP Bundler]
+    ZAAP --> zkSync[zkSync Era: Paymaster & Bundling]
+```
+
 ---
 
 ## 🚀 GETTING STARTED

@@ -13,17 +13,27 @@ const privateKey = process.env.FIREBASE_PRIVATE_KEY
   : undefined;
 
 if (!admin.apps.length) {
-  if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_CLIENT_EMAIL || !privateKey) {
-    console.warn(
-      '⚠ Firebase Admin credentials missing. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY in .env.local'
-    );
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+
+  if (!projectId || !clientEmail || !privateKey) {
+    console.error('❌ FIREBASE ADMIN ERROR: Missing credentials.');
+    if (!projectId) console.log('Missing: FIREBASE_PROJECT_ID');
+    if (!clientEmail) console.log('Missing: FIREBASE_CLIENT_EMAIL');
+    if (!privateKey) console.log('Missing: FIREBASE_PRIVATE_KEY');
   } else {
     try {
+      // Robustness: ensure key has proper boundaries if they were missing in env
+      let finalKey = privateKey;
+      if (!finalKey.includes('-----BEGIN PRIVATE KEY-----')) {
+        finalKey = `-----BEGIN PRIVATE KEY-----\n${finalKey}\n-----END PRIVATE KEY-----`;
+      }
+
       admin.initializeApp({
         credential: admin.credential.cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey,
+          projectId,
+          clientEmail,
+          privateKey: finalKey,
         }),
       });
       console.log('✅ Firebase Admin initialized successfully');

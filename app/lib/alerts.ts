@@ -1,13 +1,6 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-// Gmail Configuration
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'indrayudhbanerjee26@gmail.com',
-    pass: 'Ibaner@2006',
-  },
-});
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 export type SpendingAlert = {
   type: 'category_exceeded' | 'total_exceeded' | 'spike_detected';
@@ -185,15 +178,21 @@ export async function sendAlertEmail(
   `;
 
   try {
-    await transporter.sendMail({
-      from: '"FixMyPayments Alerts" <indrayudhbanerjee26@gmail.com>',
+    if (!resend) {
+      console.warn('⚠ Resend not configured. Skipping alert email.');
+      return false;
+    }
+
+    await resend.emails.send({
+      from: 'FixMyPayments <alerts@fixmypayments.com>',
       to: userEmail,
       subject: subjectText,
       html,
     });
+    console.log('✅ Alert email sent to', userEmail);
     return true;
   } catch (err) {
-    console.error('Gmail Error:', err);
+    console.error('❌ Resend Error:', err);
     return false;
   }
 }

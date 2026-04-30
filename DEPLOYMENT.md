@@ -5,15 +5,16 @@
 ### 1. **Firebase Not Configured on Server** ❌ → ✅
 **Problem:** Vercel deployment showed "FIREBASE NOT CONFIGURED ON SERVER"
 
-**Root Cause:** Missing `FIREBASE_PRIVATE_KEY` environment variable on Vercel
+**Root Cause:** Missing or malformed `FIREBASE_PRIVATE_KEY` environment variable on Vercel. Vercel sometimes strips newline characters (`\n`), which breaks the key.
 
 **Solution:**
-- ✅ Added Firebase environment variables to `.env.local`:
-  - `FIREBASE_PROJECT_ID=fixmypayments`
-  - `FIREBASE_CLIENT_EMAIL=firebase-adminsdk-fbsvc@fixmypayments.iam.gserviceaccount.com`
-  - `FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"`
-- ✅ Firebase Admin SDK now initializes successfully on build
-- ✅ Server-side APIs can access Firestore database
+- ✅ Improved `app/lib/firebase-admin.ts` with robust private key parsing that handles escaped newlines.
+- ✅ Added auto-boundary detection (handles keys with or without `-----BEGIN PRIVATE KEY-----`).
+- ✅ Added explicit success/error logging for better debugging in Vercel logs.
+- ✅ Required variables:
+  - `FIREBASE_PROJECT_ID=...`
+  - `FIREBASE_CLIENT_EMAIL=...`
+  - `FIREBASE_PRIVATE_KEY="..."` (Include the full key with `\n` characters)
 
 ### 2. **Build Issues & ECMAScript Errors** ❌ → ✅
 **Problem:** Payment page had broken import: `import { web3 } from '../lib/web3'`
@@ -85,8 +86,8 @@ FIREBASE_PROJECT_ID=fixmypayments
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk-fbsvc@fixmypayments.iam.gserviceaccount.com
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCi3MKsxyMlp14m\n6VPFdDJoyCtnYnTKeXvghCnH3BqjY1BSZLMvosl2MFLGCDuVfzxPhBlqgxm3M1Y/\nDHY1nPXKmsU81KaZKKPkc4co+c8k8hWcqxa1rl+r4RQ9ex6pbcMPkf60OFLlqPND\nAxwdGIF6rtFh5ezhktpOyAPC/RTeR6KSnjT3D9rqfzdZQ5kJId+fhpA+vRXfkDcp\nNa4uZD2xTYQkVYHb8eNFROGiPCJvuCDZ61leDhSQz/0+Uld6lwjXsNsCx6+JBqNU\nTNuTZlmK2kGa8TFhx2SUSHWvecFWUxhQHhL7bOiwSEpmC+RFFJk66/OEKiLk1kxr\nxkv1dETxAgMBAAECggEAGQCFDls/5Q7toFGfn6d3+agJKcTuowrFXrFLbLg4iq67\nbPqym3SFMxS2EFrBMvEmhBqGgFiCASLrcaBrIU3oWeMqtmz66nZXusGVlU/MYiKb\n+MI3KUsMuulB3zJggagtEt3Z2TbwWvt15Oq8TScu8XOXB01x8StHQmLoWO3bX0gn\nPQCo0mENEugQ0sjaEyL9/AnJnRTQnVVtqdHN3PXbtcLqpR91UnTzEnAvM9AX8mM+\nK9xCBFkGMhcIgjoFawdvy6OkYUGL4EYXa79uVWK16hlADrTXAkfqUZA1sSZElESY\nFa9XkypSBw7wITXSXW9JM7IVYs4LVq1/ZpJ9BIWmsQKBgQDYC9W/6vHws0uAPMed\n2HBJeX3u9fEUwotAoxYZAEy0hyB7qj38ooFBG1iAMQq2PnaxzNrIz2k0oTqOxqkg\nd27FkAiG2fjhwbTo3iQJrZjQrSO2iV8jNm5nIlSe290PXMG7NsqBgz8/Eb0WiE/8\n0LrSjTSBr+GHiisiAKx8DXjbdQKBgQDA+xF8/DEQNK3u92ThhEcy4z83yypCc6hl\nGcR/m94qi5aK1F4KwsIyK+BHLubgIc5IKzSzC4Ak42pQFGmwNF8GQunmRBYly/N2\nlDao6SkTzKkuRcktDmS0bo4Ns64OMtbyOUYz/3INohTapyf6m57xu0v9PnqttPnw\n1cSoq4igDQKBgD9mObO4HoekFePr8ig/+7OUE4Csa7LL5FFzimiLzfasMLwZmVcp\n2QRiIfZ8bchNTEeg9hM3yofHSIfdhIQiiD8xpU7taDvXvF8Z0TmF1/Jk3LYUWfbb\nYkqhqHN10clQTwnBamvXOBgp/HNATTjDiA+BoIbuNiCwSzgPOo6s5WqBAoGBAJlL\nFtI8llC0N/IaLNWDOPdwUnhkd1Y//2UH+fIQA4OyTExNc8KCgLZP6iFBXX5u/CiR\nwZP0L7+dsoaYIHgqsc0MfDZAoYM2plfsVhsI02t56G3sW2jiBRbatxalQz7eHaZd\n3qlRYez4ci5aF8TXt4N3713kMpknqF8pv8ToNWhFAoGBAIy238Il+kpwWBxrcNKN\nPCjZBI2FydRBkHn01E8ES2WN1qvy5d1yMJifypqwFnxMH0HrAz4YuFoktuasHHW+\nqzO4Cis0qxt6q1PWf/ZFHVFjVaj0Blvei3jLoIYdGAB+ky6rmn6WHlSAHWOLybP3\nOJa0FpJF7h5WPQ3E7bfThDc3\n-----END PRIVATE KEY-----\n"
 
-# Email Notifications
-RESEND_API_KEY=re_cyouiTri_9jJQbosfuS3a4U96aof3JFM6
+# Email Notifications (Resend)
+RESEND_API_KEY=re_your_api_key_here
 
 # Optional: AI Classification
 ANTHROPIC_API_KEY=your-key-here
