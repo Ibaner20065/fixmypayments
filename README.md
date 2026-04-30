@@ -1,4 +1,4 @@
- **"Financial sovereignty shouldn't be a luxury. It should be a standard."**
+> **"Financial sovereignty shouldn't be a luxury. It should be a standard."**
 
 FixMyPayments is a next-generation Financial Operating System built on the **Disruptor Design System**. It bridges the gap between traditional Web2 banking and the future of Web3 DeFi, providing privacy-first identity orchestration and real-time algorithmic budgeting.
 
@@ -97,6 +97,49 @@ Integrated **Neo-Brutalist Dark/Light Toggle** that persists across sessions.
 4. **Guardrails**: If budget exceeds 80%, a real-time warning is triggered.
 5. **Persistence**: Transaction is saved to Firestore.
 6. **Notification**: Resend API sends confirmation/alert emails.
+
+### Full System Flow
+
+```mermaid
+graph TD
+    User([User]) --> Auth{Authenticated?}
+    Auth -- No --> Login[Auth Page: Login/Signup]
+    Login --> FirebaseID[Firebase Auth]
+    FirebaseID --> Auth
+    
+    Auth -- Yes --> Dashboard[Dashboard: Insights & Charts]
+    Dashboard --> Pay[Payment Interface]
+    
+    Pay --> Input[Input Transaction: Text/Voice]
+    Input --> Classify[app/api/transactions: POST]
+    
+    subgraph AI_Engine [AI & Classification]
+        Classify --> AI[Anthropic Claude 3.5]
+        AI --> Result{Merchant/Category/Amount}
+        Result -- Success --> BudgetCheck
+        Result -- Fail --> Rules[Rule-based Fallback]
+        Rules --> BudgetCheck
+    end
+    
+    subgraph Guardrails [Budget Guardrails]
+        BudgetCheck[Check budgets in Firestore]
+        BudgetCheck --> Over80{> 80%?}
+        Over80 -- Yes --> Alert[Warning/Blocked UI]
+        Alert -- Blocked --> Force{Force Protocol?}
+        Force -- Yes --> Persist
+        Force -- No --> Cancel[Transaction Cancelled]
+        Over80 -- No --> Persist
+    end
+    
+    subgraph Persistence [Persistence & Notify]
+        Persist[Save to Firestore]
+        Persist --> Email[Resend API: Email Alert]
+        Persist --> UpdateDash[Update Dashboard Stats]
+    end
+    
+    Dashboard --> ZAAP[Web3: ZAAP Bundler]
+    ZAAP --> zkSync[zkSync Era: Paymaster & Bundling]
+```
 
 ---
 
@@ -221,3 +264,5 @@ FixMyPayments rejects the "minimalist-boring" trend. We use **Neo-Brutalism**:
 ## 📜 LICENSE
 
 Distributed under the MIT License. See `LICENSE` for more information.
+
+---
