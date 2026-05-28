@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  firebaseUid String   @unique @map("firebase_uid")
+  email       String
+  name        String   @default("")
+  avatarUrl   String?  @map("avatar_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  budget       Budget?
+  transactions Transaction[]
+  wallets      WalletConnection[]
+  zaapBundles  ZaapBundle[]
+
+  @@map("users")
+}
+
+model Budget {
+  id            String @id @default(uuid())
+  userId        String @unique @map("user_id")
+  total         Float  @default(40000)
+  food          Float  @default(5000)
+  transport     Float  @default(3000)
+  shopping      Float  @default(8000)
+  utilities     Float  @default(4000)
+  medical       Float  @default(5000)
+  entertainment Float  @default(3000)
+  health        Float  @default(3000)
+  groceries     Float  @default(6000)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("budgets")
+}
+
+model Transaction {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  rawText    String   @map("raw_text")
+  amount     Float
+  category   String
+  merchant   String
+  confidence Float    @default(1.0)
+  status     String   @default("Confirmed")
+  date       DateTime @default(now())
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date(sort: Desc)])
+  @@index([category])
+  @@map("transactions")
+}
+
+model WalletConnection {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  address     String
+  amlVerified Boolean   @default(false) @map("aml_verified")
+  amlRuleId   String?   @map("aml_rule_id")
+  amlExpiry   DateTime? @map("aml_expiry")
+  connectedAt DateTime  @default(now()) @map("connected_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, address])
+  @@map("wallet_connections")
+}
+
+model ZaapBundle {
+  id            String    @id @default(uuid())
+  userId        String    @map("user_id")
+  walletAddress String    @map("wallet_address")
+  bundleType    String    @map("bundle_type")
+  status        String    @default("pending")
+  txHash        String?   @map("tx_hash")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  completedAt   DateTime? @map("completed_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("zaap_bundles")
+}

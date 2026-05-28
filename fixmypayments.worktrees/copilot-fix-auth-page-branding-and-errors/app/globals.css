@@ -1,0 +1,345 @@
+/* ═══════════════════════════════════════════════════════════════════
+   FIXMYPAYMENTS — DUAL NEO-BRUTALIST DESIGN SYSTEM
+   Disruptor (App Shell) + Yellow-SaaS (Landing Page)
+   ═══════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Ranchers&family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;500;700&family=Archivo:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;700;800&display=swap');
+
+/* ─────────────────────────────────────────────────────
+   RESETS
+   ───────────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ─────────────────────────────────────────────────────
+   DISRUPTOR DESIGN TOKENS
+   ───────────────────────────────────────────────────── */
+:root {
+  /* Theme Variables (updated by ThemeProvider) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --text-primary: #000000;
+  --text-secondary: #666666;
+  --border-color: #e0e0e0;
+  --accent-color: #ffd700;
+
+  /* Disruptor Palette — STRICT */
+  --d-dark: #121212;
+  --d-black: #000000;
+  --d-white: #FFFFFF;
+  --d-volt: #CCFF00;
+  --d-muted: #475569;
+
+  /* Disruptor Shadows — solid offset, NO blur */
+  --d-shadow-sm: 4px 4px 0px #000000;
+  --d-shadow-lg: 8px 8px 0px #000000;
+  --d-shadow-inv: 8px 8px 0px #FFFFFF;
+  --d-shadow-volt: 8px 8px 0px #CCFF00;
+
+  /* Disruptor Borders */
+  --d-border: 4px solid #000000;
+  --d-border-thick: 8px solid #000000;
+
+  /* Disruptor Typography */
+  --font-headline: 'Ranchers', cursive;
+  --font-tech: 'Space Mono', monospace;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-counter: 'Archivo', sans-serif;
+
+  /* Yellow-SaaS Palette — STRICT */
+  --y-yellow: #ffe17c;
+  --y-charcoal: #171e19;
+  --y-sage: #b7c6c2;
+  --y-white: #FFFFFF;
+  --y-black: #000000;
+
+  /* Yellow-SaaS Shadows */
+  --y-shadow-sm: 4px 4px 0px 0px #000000;
+  --y-shadow-lg: 8px 8px 0px 0px #000000;
+  --y-shadow-xl: 12px 12px 0px 0px #000000;
+
+  /* Yellow-SaaS Borders */
+  --y-border: 2px solid #000000;
+
+  /* Yellow-SaaS Typography */
+  --font-heading: 'Cabinet Grotesk', sans-serif;
+  --font-saas-body: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ─────────────────────────────────────────────────────
+   DISRUPTOR UTILITIES
+   ───────────────────────────────────────────────────── */
+
+/* Buttons */
+.btn-volt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  min-height: 48px;
+  background: var(--d-volt);
+  color: var(--d-black);
+  border: var(--d-border);
+  box-shadow: var(--d-shadow-lg);
+  font-family: var(--font-tech);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  text-decoration: none;
+}
+
+.btn-volt:hover {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 #000000;
+}
+
+.btn-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  min-height: 48px;
+  background: var(--d-black);
+  color: var(--d-white);
+  border: var(--d-border);
+  box-shadow: var(--d-shadow-lg);
+  font-family: var(--font-tech);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  text-decoration: none;
+}
+
+.btn-dark:hover {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 #000000;
+}
+
+.btn-white {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 28px;
+  min-height: 48px;
+  background: var(--d-white);
+  color: var(--d-black);
+  border: var(--d-border);
+  box-shadow: var(--d-shadow-sm);
+  font-family: var(--font-tech);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  text-decoration: none;
+}
+
+.btn-white:hover {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 #000000;
+}
+
+/* Disruptor Card */
+.d-card {
+  background: var(--d-white);
+  border: var(--d-border);
+  box-shadow: var(--d-shadow-lg);
+  padding: 24px;
+}
+
+.d-card--dark {
+  background: var(--d-dark);
+  border: var(--d-border);
+  box-shadow: var(--d-shadow-inv);
+  color: var(--d-white);
+}
+
+/* Category Chips */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 14px;
+  border: var(--d-border);
+  font-family: var(--font-tech);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 100px;
+}
+
+.chip--active {
+  background: var(--d-volt);
+  color: var(--d-black);
+}
+
+.chip--inactive {
+  background: var(--d-white);
+  color: var(--d-black);
+}
+
+.chip--elevated {
+  box-shadow: var(--d-shadow-sm);
+}
+
+/* Section Labels */
+.tech-label {
+  font-family: var(--font-tech);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--d-muted);
+}
+
+.headline {
+  font-family: var(--font-headline);
+  text-transform: uppercase;
+  line-height: 0.85;
+  color: var(--d-black);
+}
+
+/* ─────────────────────────────────────────────────────
+   YELLOW-SAAS UTILITIES
+   ───────────────────────────────────────────────────── */
+
+.y-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 32px;
+  background: var(--y-black);
+  color: var(--y-white);
+  border: var(--y-border);
+  box-shadow: var(--y-shadow-lg);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  text-decoration: none;
+}
+
+.y-btn-primary:hover {
+  transform: translate(4px, 4px);
+  box-shadow: 4px 4px 0 #000000;
+}
+
+.y-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 32px;
+  background: var(--y-white);
+  color: var(--y-black);
+  border: var(--y-border);
+  box-shadow: var(--y-shadow-sm);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  text-decoration: none;
+}
+
+.y-btn-secondary:hover {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 #000000;
+}
+
+/* Yellow-SaaS Card */
+.y-card {
+  background: var(--y-white);
+  border: var(--y-border);
+  box-shadow: var(--y-shadow-sm);
+  padding: 28px;
+}
+
+/* Yellow-SaaS Dot Pattern Background */
+.y-dot-pattern {
+  background-image: radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Heading styles */
+.y-heading {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--y-black);
+}
+
+.y-heading--outline {
+  -webkit-text-stroke: 2px var(--y-black);
+  color: transparent;
+}
+
+/* Badge */
+.y-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  background: var(--y-white);
+  border: var(--y-border);
+  border-radius: 100px;
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ─────────────────────────────────────────────────────
+   MARQUEE ANIMATION
+   ───────────────────────────────────────────────────── */
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  display: flex;
+  animation: marquee-scroll 30s linear infinite;
+  width: max-content;
+}
+
+/* ─────────────────────────────────────────────────────
+   RESPONSIVE
+   ───────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .btn-volt, .btn-dark, .btn-white {
+    padding: 10px 20px;
+    font-size: 0.75rem;
+    min-height: 42px;
+  }
+
+  .y-btn-primary, .y-btn-secondary {
+    padding: 12px 24px;
+    font-size: 0.875rem;
+  }
+}

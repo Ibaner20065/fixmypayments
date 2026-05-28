@@ -1,0 +1,104 @@
+/* CardNav Component Styles */
+
+.cardnav-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: box-shadow 0.3s ease;
+}
+
+.cardnav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 24px;
+}
+
+.cardnav-logo {
+  height: 32px;
+  width: auto;
+  margin-right: 12px;
+}
+
+.cardnav-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 0 12px;
+  padding: 0;
+  transition: transform 0.3s ease;
+}
+
+.cardnav-toggle:hover {
+  transform: scale(1.1);
+}
+
+.cardnav-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+
+.cardnav-cta:hover {
+  transform: translate(2px, 2px);
+}
+
+.cardnav-container {
+  overflow: hidden;
+  transition: height 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.cardnav-cards {
+  display: grid;
+  gap: 8px;
+  padding: 16px 24px 24px;
+}
+
+.cardnav-card {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.cardnav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cardnav-links a {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.cardnav-links a:hover {
+  opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cardnav-header {
+    padding: 0 16px;
+  }
+
+  .cardnav-cards {
+    grid-template-columns: 1fr;
+    padding: 12px 16px 16px;
+  }
+
+  .cardnav-toggle {
+    margin: 0;
+  }
+}
